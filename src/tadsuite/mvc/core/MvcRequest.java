@@ -60,6 +60,7 @@ public interface MvcRequest {
 	public void cookieWrite(String key, String value, int expirySecond);
 	public void cookieWrite(String key, String value, int expirySecond, String path);
 	public void cookieWrite(String key, String value, int expireSecond, String path, String domain, boolean httpOnly);
+	public void cookieDelete(String key);
 	public void cookieDelete(String key, String path);
 	public void cookieDelete(String key, String path, String domain);
 	

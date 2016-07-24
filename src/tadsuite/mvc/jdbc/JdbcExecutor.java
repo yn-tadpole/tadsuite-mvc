@@ -2003,7 +2003,7 @@ public class JdbcExecutor {
 		if (dbType.equalsIgnoreCase(JdbcConstants.POSTGRESQL)) {
 			return sql+" limit "+maxRows;
 
-		} else if (dbType.equalsIgnoreCase(JdbcConstants.MYSQL)) {
+		} else if (dbType.equalsIgnoreCase(JdbcConstants.MYSQL) || dbType.equalsIgnoreCase(JdbcConstants.MARIADB)) {
 			return sql+" limit 0, "+maxRows;
 
 		} else if (dbType.equalsIgnoreCase(JdbcConstants.ORACLE)) {

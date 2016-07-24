@@ -98,7 +98,7 @@ public final class AuthSsoClient extends AuthClient {
 		tablePrefix=config.get("tablePrefix", "");
 		
 		stateSessionName="STATE_"+Utils.md5(config.authAppId+authPath);
-		stateValStringCookieName="S"+Utils.md5("SVSCN"+config.authAppId+authPath).toUpperCase();	
+		stateValStringCookieName="S"+Utils.md5("SVSCN"+config.authAppId+authPath).toUpperCase();
 		stateIdCookieName="S"+Utils.md5("SICN"+config.authAppId+authPath).toUpperCase();
 		stateIdValStringCookieName="S"+Utils.md5("SIVCN"+config.authAppId+authPath).toUpperCase();
 		swapKeyValStringCookieName="S"+Utils.md5("SKVCN"+config.authAppId+authPath).toUpperCase();

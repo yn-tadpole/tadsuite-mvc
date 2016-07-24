@@ -1,12 +1,2 @@
 <!--RESULT_MSG:INFO, //tadAppCloud MVC Result Message-->
-<div style="padding:30px;">
-	<div style="font-size:9pt; color:#090; background-image:url(${context_path}/_tadsuite/images/icon_info.gif); background-repeat:no-repeat; height:35px; line-height:35px; padding-left:40px;">${result_message?substring(result_message?index_of(":")+1)}</div>
-	<div style="padding:0px; padding-left:40px; font-size:9pt; line-height:20px;">
-		<#if result_message?index_of("#")!=-1>
-			${result_message?substring(result_message?index_of(":")+1, result_message?index_of("#"))}
-			<div style="font-size:9pt; color:#999;">
-					${result_message?substring(result_message?index_of("#")+1)?replace("#", "<br />")}
-			</div>
-		</#if>
-	</div>
-</div>
+${result_message?substring(result_message?index_of(":")+1)}

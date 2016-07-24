@@ -15,15 +15,24 @@
 	</ForbiddenURL>
 
 
+	<!-- 资源文件的路径，指定前辍的URL不再被MVC路由处理 ，注意：下面的防火墙配置对资源文件无效 -->
+	<ResourcesURL>
+		<Rule prefix="/_tadsuite/"></Rule>
+		<Rule prefix="/_resources/"></Rule>
+		<Rule prefix="/druid_stat/"></Rule>
+	</ResourcesURL>
+
+
+
 	<!-- WEB安装防火墙设置（防火墙配置对资源文件也有效） -->
 	<!--
 		参数： parameterValueMaxLength用于限制输入参数的长度（默认为3000，用parameter:format方法读取指定格式时不受限制）
 					csrfTokenName、csrfTokenSeedName、signatureName用于指定CSRF检测时的参数值
-					checkRefererAlias——进行Referer检查的checkOptions标识
-					checkPostMethodAlias——进行Post方法检查的checkOptions标识
-					checkCsrfTokenAlias——进行Referer检查的checkOptions标识
-					checkSignatureAlias——进行Referer检查的checkOptions标识
-					defaultCheckOptions——默认的checkOptions标识
+					checkRefererAlias :R——进行Referer检查的checkOptions标识
+					checkPostMethodAlias :P——进行Post方法检查的checkOptions标识
+					checkCsrfTokenAlias :T——进行Referer检查的checkOptions标识
+					checkSignatureAlias :S——进行Referer检查的checkOptions标识
+					defaultCheckOptions ——默认的checkOptions标识
 		Rule>excludedURL用于指定某个URL路径不需要安全检查
 		Rule>prefix/suffix用于指定特定URL前辍、后辍，应经过checkOptions指定的检查
 	 -->
@@ -34,15 +43,6 @@
 		<Rule prefix="/mangaer/" suffix="submit" checkOptions="R,T"></Rule>
 		<Rule suffix="submit" checkOptions="R,P,T"></Rule>
    </WebSecurity>
-
-
-	<!-- 资源文件的路径，指定前辍的URL不再被MVC路由处理 ，注意：上面的防火墙配置对资源文件也有效 -->
-	<ResourcesURL>
-		<Rule prefix="/_tadsuite/"></Rule>
-		<Rule prefix="/_resources/"></Rule>
-		<Rule prefix="/druid_stat/"></Rule>
-	</ResourcesURL>
-
 
 	<!-- 控制器配置
 	参数：defaultClass默认类，routerClass默认路由器，默认方法defaultMethod
@@ -76,9 +76,9 @@
   	<DataSource name="dataSource" tablePrefix="" dbType="mysql">
 		<!-- 基本属性 url、user、password -->
 		<!-- <property name="driverClassName" value=""/> 可以省略，系统由url进行判断-->
-		<property name="url" value="jdbc:mysql://127.0.0.1/tadappcloud"/>
-		<property name="username" value="tadappcloud" />
-		<property name="password" value="200053" />
+		<property name="url" value="jdbc:mysql://127.0.0.1/xxx"/>
+		<property name="username" value="xxx" />
+		<property name="password" value="yyy" />
 		<!--可以加密密码，但同时需启用下面的参数
 		java -cp druid-xxx.jar com.alibaba.druid.filter.config.ConfigTools you_password 
 		<property name="connectionProperties" value="config.decrypt=true" /> -->
@@ -102,7 +102,7 @@
 		<property name="useGlobalDataSourceStat" value="true" /><!-- 合并多个DruidDataSource的监控数据 -->
 		<property name="wallFilterRule" value="basic" /> <!-- wallFilter的规则（自定义）：readonly（只读数据源）/basic（基本读写，不含DDL）/all（允许全部） -->
 	</DataSource>
-	<DataSource name="jndiSource" tablePrefix="" dbType="mysql" jndiName="ds_tadappcloud">
+	<DataSource name="jndiSource" tablePrefix="" dbType="mysql" jndiName="ds_xxx">
 		<!-- 这样将使用JDNI数据源，不再需要其它参数 -->
 	</DataSource>
   </DataSources>
@@ -140,7 +140,7 @@
    				<property name="appId" value="" />
    				<!-- URL中的特殊字符需要进行转义，否则会导致无法读取 -->
    				<property name="authUrl" value="https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=APPID&amp;auth_skip=false&amp;scope=auth_base&amp;redirect_uri=ENCODED_URL" /><!-- scope可取值（auth_base/ auth_userinfo）-->
-   				<property name="authKey" value="a3ac8be10691e152dbbba8a9aa1e309e" />
+   				<property name="authKey" value="" />
    				<property name="redirect_uri" value="." />
    			</AuthClient>
    		</AuthClients>
@@ -151,8 +151,8 @@
    </Authencation>
 	
   <Parameters>
-  	<SystemName>tadAppCloud.main</SystemName>
-  	<SystemTitle>昆明铁路局应用云平台</SystemTitle>
+  	<SystemName>XXXX</SystemName>
+  	<SystemTitle>XXXX</SystemTitle>
   	
   	<debugMode>true</debugMode>
   	

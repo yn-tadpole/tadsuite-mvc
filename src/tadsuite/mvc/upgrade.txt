@@ -7,10 +7,14 @@ import tadsuite.core.MvcControllerBase;
 import tadsuite.core.MvcModalBase;
 import tadsuite.core.Utils;
 导入新引用
-import tadsuite.framework.auth.AuthUserState;
-import tadsuite.framework.mvc.MvcControllerBase;
-import tadsuite.framework.mvc.MvcServiceBase;
+import tadsuite.mvc.auth.AuthUserState;
+import tadsuite.mvc.core.MvcControllerBase;
+import tadsuite.mvc.core.MvcServiceBase;
+import tadsuite.mvc.utils.Utils;
 
+
+Utils.sessionRead(controller,	>		controller.request.sessionRead(
+Utils.sessionWrite(controller, 	>		controller.request.sessionWrite(
 
 MvcModalBase-》MvcServiceBase
 AuthClient	-》AuthUserState

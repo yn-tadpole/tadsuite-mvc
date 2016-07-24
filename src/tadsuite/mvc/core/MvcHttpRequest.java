@@ -470,7 +470,17 @@ public class MvcHttpRequest implements MvcRequest {
 			cookie.setPath("/"); //未指定path时写入“/”，避免不同调用路径无法执行达到统一结果
 		}
 		try {cookie.setHttpOnly(httpOnly);} catch (NoSuchMethodError e) {} //Sevlet 3.0才支持
-		response.addCookie(cookie);
+		getResponse().addCookie(cookie); //注意：这里不能使用response，因为它可能是空的
+	}
+
+	/**
+	 * 删除Cookie
+	 * @param request
+	 * @param key
+	 * @param path
+	 */
+	public void cookieDelete(String key){
+		cookieWrite(key, "", 0, null, null, true); 
 	}
 
 	/**

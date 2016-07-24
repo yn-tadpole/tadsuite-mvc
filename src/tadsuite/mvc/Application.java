@@ -369,6 +369,7 @@ public class Application {
 			}
 			authClientMap=newAuthClientMap;
 		}
+		
 		//Read Resource Configuration.
 		LinkedHashMap<String, String> newAuthExcludedMap= new LinkedHashMap<String, String>();
 		LinkedHashMap<String, String> newAuthProtechedUrlMap=new LinkedHashMap<String, String>();
