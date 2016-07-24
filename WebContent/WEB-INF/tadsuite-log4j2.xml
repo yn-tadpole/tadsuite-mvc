@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="30">
+  <Appenders>
+  
+    <Console name="STDOUT" target="SYSTEM_OUT"><!-- 向控制台输出日志信息 charset="GBK"  -->
+      <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %msg%n"/>
+    </Console>
+    
+    <RollingRandomAccessFile name="AuthLogFile" immediateFlush="true" fileName="${sys:work_dir_parent}/logs/${sys:system_name}-auth.log" filePattern="$${sys:work_dir_parent}/logs/$${date:yyyyMM}/$${sys:system_name}-auth-%d{yyyyMMdd}-%i.log.zip">
+      <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %m%n"/>
+      <BurstFilter level="info" rate="100" maxBurst="0" /><!--trace级及以下将会被忽略，但以上级别会保留 -->
+      <Policies>
+        <!-- <TimeBasedTriggeringPolicy /> -->
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="500" />
+    </RollingRandomAccessFile>
+    
+    <RollingRandomAccessFile name="ManagerLogFile" immediateFlush="true" fileName="${sys:work_dir_parent}/logs/${sys:system_name}-manager.log" filePattern="$${sys:work_dir_parent}/logs/$${date:yyyyMM}/$${sys:system_name}-manager-%d{yyyyMMdd}-%i.log.zip">
+      <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %m%n"/>
+      <BurstFilter level="info" rate="100" maxBurst="0" /><!--trace级及以下将会被忽略，但以上级别会保留 -->
+      <Policies>
+        <!-- <TimeBasedTriggeringPolicy /> -->
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="500" />
+    </RollingRandomAccessFile>
+    
+    <RollingRandomAccessFile name="AppLogFile" immediateFlush="true" fileName="${sys:work_dir_parent}/logs/${sys:system_name}-app.log" filePattern="$${sys:work_dir_parent}/logs/$${date:yyyyMM}/$${sys:system_name}-app-%d{yyyyMMdd}-%i.log.zip">
+      <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %m%n"/>
+      <BurstFilter level="info" rate="100" maxBurst="0" /><!--trace级及以下将会被忽略，但以上级别会保留 -->
+      <Policies>
+        <!-- <TimeBasedTriggeringPolicy /> -->
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="500" />
+    </RollingRandomAccessFile>
+    
+    <RollingRandomAccessFile name="ErrorLogFile" immediateFlush="true" fileName="${sys:work_dir_parent}/logs/${sys:system_name}-error.log" filePattern="$${sys:work_dir_parent}/logs/$${date:yyyyMM}/$${sys:system_name}-error-%d{yyyyMMdd}-%i.log.zip">
+      <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %m%n"/>
+      <BurstFilter level="info" rate="100" maxBurst="0" /><!--trace级及以下将会被忽略，但以上级别会保留 -->
+      <Policies>
+        <!-- <TimeBasedTriggeringPolicy /> -->
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="500" />
+    </RollingRandomAccessFile>
+    
+    <RollingRandomAccessFile name="JdbcLogFile" immediateFlush="true" fileName="${sys:work_dir_parent}/logs/${sys:system_name}-jdbc.log" filePattern="$${sys:work_dir_parent}/logs/$${date:yyyyMM}/$${sys:system_name}-jdbc-%d{yyyyMMdd}-%i.log.zip">
+      <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %m%n"/>
+      <BurstFilter level="info" rate="100" maxBurst="0" /><!--trace级及以下将会被忽略，但以上级别会保留 -->
+      <Policies>
+        <!-- <TimeBasedTriggeringPolicy /> -->
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="500" />
+    </RollingRandomAccessFile>
+    
+    <RollingRandomAccessFile name="PerformanceLogFile" immediateFlush="true" fileName="${sys:work_dir_parent}/logs/${sys:system_name}-performance.log" filePattern="$${sys:work_dir_parent}/logs/$${date:yyyyMM}/$${sys:system_name}-performance-%d{yyyyMMdd}-%i.log.zip">
+      <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %m%n"/>
+      <BurstFilter level="info" rate="100" maxBurst="0" /><!--trace级及以下将会被忽略，但以上级别会保留 -->
+      <Policies>
+        <!-- <TimeBasedTriggeringPolicy /> -->
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="500" />
+    </RollingRandomAccessFile>
+    
+    <RollingRandomAccessFile name="SecurityLogFile" immediateFlush="true" fileName="${sys:work_dir_parent}/logs/${sys:system_name}-security.log" filePattern="$${sys:work_dir_parent}/logs/$${date:yyyyMM}/$${sys:system_name}-security-%d{yyyyMMdd}-%i.log.zip">
+      <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %m%n"/>
+      <BurstFilter level="info" rate="100" maxBurst="0" /><!--trace级及以下将会被忽略，但以上级别会保留 -->
+      <Policies>
+        <!-- <TimeBasedTriggeringPolicy /> -->
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="500" />
+    </RollingRandomAccessFile>
+    
+    <RollingRandomAccessFile name="AlipayLogFile" immediateFlush="true" fileName="${sys:work_dir_parent}/logs/${sys:system_name}-alipay.log" filePattern="$${sys:work_dir_parent}/logs/$${date:yyyyMM}/$${sys:system_name}-alipay-%d{yyyyMMdd}-%i.log.zip">
+      <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %m%n"/>
+      <BurstFilter level="info" rate="100" maxBurst="0" /><!--trace级及以下将会被忽略，但以上级别会保留 -->
+      <Policies>
+        <!-- <TimeBasedTriggeringPolicy /> -->
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="500" />
+    </RollingRandomAccessFile>
+    
+    <RollingRandomAccessFile name="DruidSqlLogFile" immediateFlush="true" fileName="${sys:work_dir_parent}/logs/${sys:system_name}-druid-sql.log" filePattern="$${sys:work_dir_parent}/logs/$${date:yyyyMM}/$${sys:system_name}-druid-sql-%d{yyyyMMdd}-%i.log.zip">
+      <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %m%n"/>
+      <BurstFilter level="info" rate="100" maxBurst="0" /><!--trace级及以下将会被忽略，但以上级别会保留 -->
+      <Policies>
+        <!-- <TimeBasedTriggeringPolicy /> -->
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="500" />
+    </RollingRandomAccessFile>
+    
+    <RollingRandomAccessFile name="DruidSqlDataSourceLogFile" immediateFlush="true" fileName="${sys:work_dir_parent}/logs/${sys:system_name}-druid-datasource.log" filePattern="$${sys:work_dir_parent}/logs/$${date:yyyyMM}/$${sys:system_name}-druid-datasource-%d{yyyyMMdd}-%i.log.zip">
+      <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %m%n"/>
+      <BurstFilter level="info" rate="100" maxBurst="0" /><!--trace级及以下将会被忽略，但以上级别会保留 -->
+      <Policies>
+        <!-- <TimeBasedTriggeringPolicy /> -->
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="500" />
+    </RollingRandomAccessFile>
+    
+    <RollingRandomAccessFile name="DruidSqlConnectionLogFile" immediateFlush="true" fileName="${sys:work_dir_parent}/logs/${sys:system_name}-druid-connection.log" filePattern="$${sys:work_dir_parent}/logs/$${date:yyyyMM}/$${sys:system_name}-druid-connection-%d{yyyyMMdd}-%i.log.zip">
+      <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %m%n"/>
+      <BurstFilter level="info" rate="100" maxBurst="0" /><!--trace级及以下将会被忽略，但以上级别会保留 -->
+      <Policies>
+        <!-- <TimeBasedTriggeringPolicy /> -->
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="500" />
+    </RollingRandomAccessFile>
+    
+    <RollingRandomAccessFile name="DruidSqlStatementLogFile" immediateFlush="true" fileName="${sys:work_dir_parent}/logs/${sys:system_name}-druid-statement.log" filePattern="$${sys:work_dir_parent}/logs/$${date:yyyyMM}/$${sys:system_name}-druid-statement-%d{yyyyMMdd}-%i.log.zip">
+      <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %m%n"/>
+      <BurstFilter level="info" rate="100" maxBurst="0" /><!--trace级及以下将会被忽略，但以上级别会保留 -->
+      <Policies>
+        <!-- <TimeBasedTriggeringPolicy /> -->
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="500" />
+    </RollingRandomAccessFile>
+    
+    <RollingRandomAccessFile name="DruidSqlResultSetLogFile" immediateFlush="true" fileName="${sys:work_dir_parent}/logs/${sys:system_name}-druid-resultset.log" filePattern="$${sys:work_dir_parent}/logs/$${date:yyyyMM}/$${sys:system_name}-druid-resultset-%d{yyyyMMdd}-%i.log.zip">
+      <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %m%n"/>
+      <BurstFilter level="info" rate="100" maxBurst="0" /><!--trace级及以下将会被忽略，但以上级别会保留 -->
+      <Policies>
+        <!-- <TimeBasedTriggeringPolicy /> -->
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="500" />
+    </RollingRandomAccessFile>
+    
+    <RollingRandomAccessFile name="AllLogFile" immediateFlush="true" fileName="${sys:work_dir_parent}/logs/${sys:system_name}-all.log" filePattern="$${sys:work_dir_parent}/logs/$${date:yyyyMM}/$${sys:system_name}-all-%d{yyyyMMdd}-%i.log.zip">
+      <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level - %m%n"/>
+      <BurstFilter level="info" rate="100" maxBurst="0" /><!--trace级及以下将会被忽略，但以上级别会保留 -->
+      <Policies>
+        <!-- <TimeBasedTriggeringPolicy /> -->
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="500" />
+    </RollingRandomAccessFile>
+    
+    <Async name="AsyncConsole">
+      <AppenderRef ref="STDOUT"/>
+    </Async>
+  </Appenders>
+  
+  <Loggers>
+	<Logger name="${sys:logger_name_auth}" level="trace">
+		<AppenderRef ref="AuthLogFile"/>
+	</Logger>
+	<Logger name="${sys:logger_name_logic_mgr}" level="trace">
+		<AppenderRef ref="ManagerLogFile"/>
+	</Logger>
+	<Logger name="${sys:logger_name_logic_app}" level="trace">
+		<AppenderRef ref="AppLogFile"/>
+	</Logger>
+	<Logger name="${sys:logger_name_error}" level="trace">
+		<AppenderRef ref="ErrorLogFile"/>
+	</Logger>
+	<Logger name="${sys:logger_name_performance}" level="trace">
+		<AppenderRef ref="PerformanceLogFile"/>
+	</Logger>
+	<Logger name="${sys:logger_name_jdbc}" level="trace">
+		<AppenderRef ref="JdbcLogFile"/>
+	</Logger>
+	<Logger name="${sys:logger_name_security}" level="trace">
+		<AppenderRef ref="SecurityLogFile"/>
+	</Logger>
+	<Logger name="log4j.logger.alipay" level="trace">
+		<AppenderRef ref="AlipayLogFile"/>
+	</Logger>
+	<Logger name="log4j.logger.druid.sql" level="error">
+		<AppenderRef ref="DruidSqlLogFile"/>
+	</Logger>
+	<Logger name="log4j.logger.druid.sql.DataSource" level="error">
+		<AppenderRef ref="DruidSqlDataSourceLogFile"/>
+	</Logger>
+	<Logger name="log4j.logger.druid.sql.Connection" level="error">
+		<AppenderRef ref="DruidSqlConnectionLogFile"/>
+	</Logger>
+	<Logger name="log4j.logger.druid.sql.Statement" level="error">
+		<AppenderRef ref="DruidSqlStatementLogFile"/>
+	</Logger>
+	<Logger name="log4j.logger.druid.sql.ResultSet" level="error">
+		<AppenderRef ref="DruidSqlResultSetLogFile"/>
+	</Logger>
+    <root level="trace">
+    	<AppenderRef ref="AsyncConsole" />
+      <AppenderRef ref="AllLogFile"/>
+    </root>
+  </Loggers>
+</Configuration> 

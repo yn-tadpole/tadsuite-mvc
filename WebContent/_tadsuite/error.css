@@ -1,0 +1,92 @@
+@charset "utf-8";
+/* CSS Document */
+* {
+	font-size:9pt;
+	font-family:"Trebuchet MS", "微软雅黑";
+}
+a:link {
+	color: #006699;
+	text-decoration: none;
+}
+a:visited {
+	color: #006699;
+	text-decoration: none;
+}
+a:hover {
+	color: #59b0c3;
+	text-decoration: underline;
+}
+a:active {
+	color: #FF0000;
+	text-decoration: none;
+}
+body {
+	padding:0px; 	margin:0px;
+	background-color:#fff;
+	background-image:url(images/bg.jpg);
+	background-repeat:no-repeat;
+	color:#000;
+	border:none;
+}
+.cClear {
+	clear: both;
+}
+.cGray {
+	color: #999999;
+}
+#pMain {
+	background-image:url(images/dialog_bg_02.jpg);
+	background-repeat:repeat-x;
+	background-color:#eee;
+	width:388px;
+	border-top:1px solid #ccc;
+	border-left:1px solid #ccc;
+	border-right:1px solid #999;
+	border-bottom:1px solid #999;
+	overflow:hidden;
+	color:#ddd;
+	margin:auto;
+	text-align:left;
+	margin-top:30px;
+}
+#pMain a {
+	color:#000;
+}
+#pMain .cBody{
+	background-image:url(images/dialog_bg_01.jpg);
+	background-position:0px -40px;
+	background-repeat:no-repeat;
+	border-top:1px solid #fff;
+	border-left:1px solid #fff;
+ 	height:228px; 
+	padding:40px;
+	overflow:visible;
+}
+#pMain .cBody .cTitle {
+	background-image:url(images/icon_error.png);
+	background-repeat:no-repeat;
+	height:32px; line-height:32px;
+	padding-left:40px;
+}
+#pMain .cBody .cTitle span {
+	color:#F00;
+	font-weight:bold;
+	font-size:14px;
+}
+#pMain .cBody .cContent {
+	padding-left:40px;
+	line-height:25px;
+	color:#F00;
+	font-size:14px;
+}
+#pMain .cBody .cButtonArea {
+	padding:10px;
+}
+.cButton, button {
+	background-image:url(images/button_bg.png);
+	background-position:center;
+	border:1px solid;
+	border-color:#fff #888 #888 #fff;
+	height:24px; line-height:22px;
+}
+

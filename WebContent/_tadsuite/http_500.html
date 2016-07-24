@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<!--RESULT_MSG:500, //tadAppCloud MVC Result Message-->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge"><!--Focus IE use new render mode, disable compatibility mode.-->
+<meta name="renderer" content="webkit"><!--Focus multi core broswer(360 and ect..) use webkit core, not trident(IE) core.-->
+<meta name="viewport" content="width=device-width, initial-scale=1"><!--Fix width on pad and phone.-->
+<title>500</title>
+<style type="text/css">
+.page-500 {background-color:#f3f3f4;}
+.page-500 .middle-box {
+    position: absolute;
+    top: 50%; left: 50%;
+    height: 400px; width:500px;
+    margin-left: -250px; margin-top: -250px;
+    z-index: 100;
+    text-align:center;
+    color:#a76a6a;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif, "Trebuchet MS", "微软雅黑", "Microsoft YaHei UI", "Microsoft YaHei";
+    font-size:14px;
+    line-height:1.4;
+}
+.page-500 .middle-box h1 {font-size:170px; font-weight:500; line-height:1.1; margin:0;}
+.page-500 .middle-box h3 {font-size:22px; font-weight:300; line-height:1.3; margin:0; color:#778;}
+.page-500 .error-desc {color:#a99;}
+.page-500 .btn-area {padding-top:5px;}
+.page-500 .btn {
+    background-color:#baa;
+    text-align:center; vertical-align:middle;
+    color:#fff;
+    -moz-user-select: none;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+    display: inline-block;
+    margin-bottom: 0;
+    padding: 6px 12px;
+    white-space: nowrap;
+}
+.page-500 .btn:hover {
+    background-color:#a99;
+}
+</style>
+</head>
+<body class="page-500 gray-bg">
+<div class="middle-box">
+    <h1>500</h1>
+    <h3>Server returned error information</h3>
+    <div class="error-desc">
+        抱歉，服务器返回了错误的信息。请稍候再试，或联系系统管理员。<br>
+        Sorry, The server response a error message. Please try again later, or contact your system administrator.
+    </div>
+    <div class="btn-area"><button class="btn" onclick="HTTP_500_RETURN(this);">返回 Return</button></div>
+</div>
+<script type="text/javascript">
+var HTTP_500_RETURN_CLICKED=false;
+function HTTP_500_RETURN(bu) {
+    if (HTTP_500_RETURN_CLICKED) {
+        top.window.close();
+        return;
+    }
+    HTTP_500_RETURN_CLICKED=true;
+    bu.innerText="关闭 Close";
+	try {
+		if (top!=self) {
+			if (parent.$.colorbox) {
+				parent.$.colorbox.close();
+				return;
+			} else {
+				top.window.close();
+				return;
+			}
+		}
+	} catch (e) {
+		top.window.close();
+		return;
+	}
+	history.back();
+}
+</script>
+</body>
+</html>

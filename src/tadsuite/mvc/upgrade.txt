@@ -1,0 +1,18 @@
+从TADSUITE（v4.0）版本升级到tadsuite-mvc版本
+
+Modal -> Service
+1.删除原引用
+import tadsuite.core.AuthClient;
+import tadsuite.core.MvcControllerBase;
+import tadsuite.core.MvcModalBase;
+import tadsuite.core.Utils;
+导入新引用
+import tadsuite.framework.auth.AuthUserState;
+import tadsuite.framework.mvc.MvcControllerBase;
+import tadsuite.framework.mvc.MvcServiceBase;
+
+
+MvcModalBase-》MvcServiceBase
+AuthClient	-》AuthUserState
+MODAL_...	替换为 RESULT_...
+controller.readInput..	-> request.readInput

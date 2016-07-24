@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration	
+	xmlns="http://www.tadsuite.org/schema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.tadsuite.org/schema tadsuite.xsd" >
+	
+	<!-- 默认的语言设置 -->
+	<Global defaultLocale="zh-CN"  />
+	
+	
+	<!-- 禁止访问的URL -->
+	<!-- 其中：“/.”、“/.svn/”、“/.git/”开头或者“.jsp”结尾（且位于资源路径）的URL一直都会被禁止 -->
+	<ForbiddenURL>
+		<Rule prefix="/private/"></Rule>
+	</ForbiddenURL>
+
+
+	<!-- WEB安装防火墙设置（防火墙配置对资源文件也有效） -->
+	<!--
+		参数： parameterValueMaxLength用于限制输入参数的长度（默认为3000，用parameter:format方法读取指定格式时不受限制）
+					csrfTokenName、csrfTokenSeedName、signatureName用于指定CSRF检测时的参数值
+					checkRefererAlias——进行Referer检查的checkOptions标识
+					checkPostMethodAlias——进行Post方法检查的checkOptions标识
+					checkCsrfTokenAlias——进行Referer检查的checkOptions标识
+					checkSignatureAlias——进行Referer检查的checkOptions标识
+					defaultCheckOptions——默认的checkOptions标识
+		Rule>excludedURL用于指定某个URL路径不需要安全检查
+		Rule>prefix/suffix用于指定特定URL前辍、后辍，应经过checkOptions指定的检查
+	 -->
+	<WebSecurity parameterValueMaxLength="3000" csrfTokenName="token" csrfTokenSeedName="seed" signatureName="signature"
+		 checkRefererAlias="R" checkPostMethodAlias="P" checkCsrfTokenAlias="T" checkSignatureAlias="S" defaultCheckOptions="">
+   		<Rule excludedURL="/mangaer/Welcome"></Rule>
+		<Rule prefix="/mangaer/" checkOptions="R,T"></Rule>
+		<Rule prefix="/mangaer/" suffix="submit" checkOptions="R,T"></Rule>
+		<Rule suffix="submit" checkOptions="R,P,T"></Rule>
+   </WebSecurity>
+
+
+	<!-- 资源文件的路径，指定前辍的URL不再被MVC路由处理 ，注意：上面的防火墙配置对资源文件也有效 -->
+	<ResourcesURL>
+		<Rule prefix="/_tadsuite/"></Rule>
+		<Rule prefix="/_resources/"></Rule>
+		<Rule prefix="/druid_stat/"></Rule>
+	</ResourcesURL>
+
+
+	<!-- 控制器配置
+	参数：defaultClass默认类，routerClass默认路由器，默认方法defaultMethod
+	匹配顺序：指定类.指定方法〉指定类.默认方法〉默认类.默认方法〉默认路由类.默认方法
+	 -->
+	<Controllers defaultClass="Welcome" routerClass="Router" defaultMethod="execute">
+		<Rule prefix="/" package="tadsuite.appcloud.main.controller" templatePrefix="" />
+		<Rule prefix="/sms" package="tadsuite.sms_gateway.controller" templatePrefix="/sms_gateway" />
+	</Controllers>
+
+
+	<!-- 模板配置（Freemarker）
+		templateExtension模板文件扩展名
+		templateRefreshDelay模板缓存时限（0为不缓存）
+		templateVersionMark版块化模板标识（设置后优先加载带标识的模板）
+	 -->
+	<Templates templateExtension=".htm" templateRefreshDelay="0" templateVersionMark="">
+		<InfoResultTemplate>/_tadsuite/result_info.htm</InfoResultTemplate>
+		<ErrorResultTemplate>/_tadsuite/result_error.htm</ErrorResultTemplate>
+		<LoginResultTemplate>/_tadsuite/result_login.htm</LoginResultTemplate>
+		<CSRFResultTemplate>/_tadsuite/result_csrf.htm</CSRFResultTemplate>
+	</Templates>
+	
+  
+  <!-- 数据源配置
+  	注意：第一项配置将作为默认数据源可通过默认的jdbc对象或new Jdbc()使用，其它数据源通过new Jdbc(datasourcename)来使用 -->
+  <DataSources>
+  	<!-- First DataSource is default data source.-->
+  	<!-- 注意：非JNDI数据源的配置只会在第一次加载时使用，因为数据源创建后不会再重新创建，非JDNI数据源将使用Druid连接池进行管理 -->
+  	<!-- dbType:oracle/mysql/mariadb/sqlserver/postgresql/sybase/db2 -->
+  	<DataSource name="dataSource" tablePrefix="" dbType="mysql">
+		<!-- 基本属性 url、user、password -->
+		<!-- <property name="driverClassName" value=""/> 可以省略，系统由url进行判断-->
+		<property name="url" value="jdbc:mysql://127.0.0.1/tadappcloud"/>
+		<property name="username" value="tadappcloud" />
+		<property name="password" value="200053" />
+		<!--可以加密密码，但同时需启用下面的参数
+		java -cp druid-xxx.jar com.alibaba.druid.filter.config.ConfigTools you_password 
+		<property name="connectionProperties" value="config.decrypt=true" /> -->
+		
+		<!-- 配置初始化大小、最小、最大 -->
+		<property name="initialSize" value="1" />
+		<property name="maxActive" value="100" />
+
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="60000" />
+
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="60000" />
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+		<!-- 打开PSCache（仅适用于Oracle数据库），并且指定每个连接上PSCache的大小
+	    <property name="poolPreparedStatements" value="true" />
+	    <property name="maxPoolPreparedStatementPerConnectionSize" value="20" /> -->
+		<property name="useGlobalDataSourceStat" value="true" /><!-- 合并多个DruidDataSource的监控数据 -->
+		<property name="wallFilterRule" value="basic" /> <!-- wallFilter的规则（自定义）：readonly（只读数据源）/basic（基本读写，不含DDL）/all（允许全部） -->
+	</DataSource>
+	<DataSource name="jndiSource" tablePrefix="" dbType="mysql" jndiName="ds_tadappcloud">
+		<!-- 这样将使用JDNI数据源，不再需要其它参数 -->
+	</DataSource>
+  </DataSources>
+  
+   <Authencation>
+   		<AuthClients>
+   			<AuthClient authAppId="MGR" authType="Simple">
+   				<property name="loginTemplate" value="/manager/Login.htm" />
+   				<property name="useValidationCode" value="false" />
+   				<property name="passwordEncrypt" value="COMBINE" />
+   				<property name="expireMinute" value="30" />
+   				<property name="cookieDomain" value="" />
+   				<property name="cookiePath" value="" />
+   				<property name="bindClientIP" value="true" />
+   				<property name="dataSource" value="" />
+   				<property name="tableName" value="tb_user" />
+   				<property name="tableColList" value="id:id, name:name, username:username, password:password, status:status, allow_ip:allow_ip, deny_ip:deny_ip, login_count:login_count, login_time:login_time, login_ip:login_ip, prev_login_time:prev_login_time, prev_login_ip:prev_login_ip, permission:permission, state_col : state_id, state_token : state_token" />
+   			</AuthClient>
+   			
+   			<AuthClient authAppId="SYS" authType="SSO">
+   				<property name="authPath" value="" />
+   				<property name="authKey" value="a3ac8be10691e152dbbba8a9aa1e309e" />
+   				<property name="loginTemplate" value="loginTemplate" />
+   				<property name="useValidationCode" value="false" />
+   				<property name="passwordEncrypt" value="COMBINE" />
+   				<property name="expireMinute" value="30" />
+   				<property name="cookieDomain" value="" />
+   				<property name="cookiePath" value="" />
+   				<property name="bindClientIP" value="true" />
+   				<property name="dataSource" value="" />
+   				<property name="tablePrefix" value="platform_" />
+   			</AuthClient>
+   			
+   			<AuthClient authAppId="Shop" authType="OAuth_Alipay">
+   				<property name="appId" value="" />
+   				<!-- URL中的特殊字符需要进行转义，否则会导致无法读取 -->
+   				<property name="authUrl" value="https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=APPID&amp;auth_skip=false&amp;scope=auth_base&amp;redirect_uri=ENCODED_URL" /><!-- scope可取值（auth_base/ auth_userinfo）-->
+   				<property name="authKey" value="a3ac8be10691e152dbbba8a9aa1e309e" />
+   				<property name="redirect_uri" value="." />
+   			</AuthClient>
+   		</AuthClients>
+   		
+   		<ProtechedURL>
+	   		<Rule prefix="/manager/" authAppId="MGR"></Rule>
+   		</ProtechedURL>
+   </Authencation>
+	
+  <Parameters>
+  	<SystemName>tadAppCloud.main</SystemName>
+  	<SystemTitle>昆明铁路局应用云平台</SystemTitle>
+  	
+  	<debugMode>true</debugMode>
+  	
+  	<!-- 一个随机字符串，用于服务器端HASH一些验证字符串，每个应用应设置不同，以增加伪造难度 -->
+  	<ValStringEncryptSample>8ds632982-;lkjoi0-43098</ValStringEncryptSample>
+  	<ValidationCodeDictionary></ValidationCodeDictionary>
+  	<ValidationCodeFontList></ValidationCodeFontList>
+  	
+  	
+  </Parameters>
+  
+</Configuration> 
+
+<!--
+
+
+ -->

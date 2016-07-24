@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Locale code="zh-CN" dateFormat="yyyy-MM-dd" dateTimeFormat="yyyy-MM-dd HH:mm" numberFormat="0.####">
+  <Failture_When_Create_User_State>创建用户会话出错</Failture_When_Create_User_State>
+  <Validation_Code_Error>验证码错误</Validation_Code_Error>
+  <Username_Is_Required>未填写用户名</Username_Is_Required>
+  <Wrong_Username_Or_Password>用户名或者密码错误</Wrong_Username_Or_Password>
+  <Too_Times_To_Try_Password>输错密码次数太多</Too_Times_To_Try_Password>
+  <This_User_Has_Been_Locked>用户状态锁定</This_User_Has_Been_Locked>
+  <This_IP_Is_Not_Allowed>未授权从当前IP地址登录</This_IP_Is_Not_Allowed>
+  <This_IP_Has_Been_Blocked>禁止从当前IP地址登录</This_IP_Has_Been_Blocked>
+  <This_IP_Has_Been_Blocked>当前IP地址已被禁止访问</This_IP_Has_Been_Blocked>
+  <Db_Save_Error>保存数据时出错</Db_Save_Error>
+</Locale>
