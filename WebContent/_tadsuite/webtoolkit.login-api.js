@@ -112,12 +112,21 @@ var LOGIN_API=new function() {
         _submiting=true;
         $container.find(".login-message").html("正在提交，请稍候……").css("color", "white");
         var encryptPassword=sha256((_passwordEncrypt=="MD5" ? md5(password) : _passwordEncrypt=="SHA256" ? sha256(password) : _passwordEncrypt=="COMBINE" ? sha256(sha256(username)+password) : password)+_swapKey);
-        if (_authType=="sso") {// && _crossDomain
-          var params="&fdUsername="+username+"&fdPassword="+encryptPassword+"&fdValidationStr="+valcode+"&fdSaveState="+saveState;
-          api.getScript(_authPath+"?auth_action=login&callback=script&swap_key="+_swapKey+params);
-          _submiting=false;
+        if (_authType=="sso") {
+          document.cookie = "Auth_saveState="+saveState;
+          if (_crossDomain) {
+            var params="&fdUsername="+username+"&fdPassword="+encryptPassword+"&fdValidationStr="+valcode+"&fdSaveState="+saveState;
+            api.getScript(_authPath+"?auth_action=login&callback=script&swap_key="+_swapKey+params);
+            _submiting=false;
+          } else {
+            $.post(_authPath+"?auth_action=login", {callback : "script", swap_key : _swapKey, fdUsername : username, fdPassword : encryptPassword, fdValidationStr : valcode, fdSaveState : saveState}, function (data, status) {
+                data=data.toString();
+                eval(data);
+                _submiting=false;
+            });
+          }
         } else {
-          $.post(_authPath+"?auth_action=login", {fdUsername : username, fdPassword : encryptPassword, fdValidationStr : valcode, fdSaveState : saveState, swap_key : _swapKey}, function (data, status) {
+          $.post(_authPath+"?auth_action=login", {fdUsername : username, fdPassword : encryptPassword, fdValidationStr : valcode, fdSaveState : saveState}, function (data, status) {
               data=data.toString();
               eval(data);
               _submiting=false;
@@ -154,19 +163,16 @@ var LOGIN_API=new function() {
     }
     
     api.showError=function(message) {
-      if (message.indexOf("验证码")!=-1 && !_useValidationCode) {
+      if ((message=="validate" || message.indexOf("验证码")!=-1) && !_useValidationCode) {
         document.cookie = "Auth_useValidationCode=Y";
         var url=location.toString();
         var x=url.indexOf("#");
         location=x!=-1 ? url.substring(0, x) : url;
+        return;
       }
       $container.find(".login-message").html(message).css("color", "red");
       $container.find("#validationImage").click();
       $container.find("#valcode").val("");
-    }
-    
-    api.showChangePsDialog=function () {
-      api.win(_authPath.substring(0, _authPath.lastIndexOf("/")+1)+"ChangePassword?username="+$(form).find("#username").val(), 370, 288);
     }
     
     api.win=function(url,width,height,scrollbar,wtop,wleft,wname) {	
@@ -197,14 +203,7 @@ var LOGIN_API=new function() {
           api.showFinished();
           return;
         case "error" :
-          if (message=="validate") {
-            location=location;
-            return;
-          }
           api.showError(message);
-          return;
-        case "changeps" :
-          api.showError("密码已经过期，必须修改密码后才能登录。<a href=\"javascript:void LOGIN_API.showChangePsDialog();\">点击修改</a>");
           return;
         default : 
           alert(code+","+message);

@@ -57,14 +57,22 @@ public abstract class AuthClient {
 
 	protected static String buildSessionValString(MvcRequest request, String stateId, boolean bindClientIP) {//该串通常存客户端，仅对应特定sessionId
 		String sample=valStringSample!=null && valStringSample.length()>0 ? valStringSample : valStringSampleDefault;
-		return bindClientIP //有时不绑定IP是为了解决多路网络环境下，IP地址发生变化导致会话丢失
+		String value= bindClientIP //有时不绑定IP是为了解决多路网络环境下，IP地址发生变化导致会话丢失
 				? Utils.getValidationStr(stateId, sample, request.getRemoteAddr(), request.getSessionId(), request.getHeader("User-Agent"))
 				: Utils.getValidationStr(stateId, sample, request.getSessionId(), request.getHeader("User-Agent"));
+		return str2uuid(value);
 	}
 	
 	public static String buildCookieValString(MvcRequest request, String stateId) {//对于Cookie中的stateId进行验证应加IP参数，其它情况不加IP参数//注意：AuthClient中的版本应与AuthServer中的版本一致
 		String sample=valStringSample!=null && valStringSample.length()>0 ? valStringSample : valStringSampleDefault;		
-		return Utils.getValidationStr(stateId, sample, request.getRemoteAddr(), request.getHeader("User-Agent")); //该项会导致负载均衡时会话丢失, request.getServerName()
+		return str2uuid(Utils.getValidationStr(stateId, sample, request.getRemoteAddr(), request.getHeader("User-Agent"))); //该项会导致负载均衡时会话丢失, request.getServerName()
+	}
+	
+	//让字符串更像一个UUID
+	private static String str2uuid(String str) {
+		StringBuffer value=new StringBuffer(Utils.md5(str)); 
+		value.insert(7, '-').insert(12, '-').insert(17, '-').insert(22, '-');
+		return value.toString();
 	}
 	
 	public static String buildResult(boolean bScript, String code, String message) {

@@ -246,8 +246,8 @@ public class MvcControllerBase extends MvcBase {
 		throw new ExecuteEndExcpetion(RESULT_END, message);
 	}
 	
-	public final static void endExecuting(String result, String message) throws ExecuteEndExcpetion {
-		throw new ExecuteEndExcpetion(result, message);
+	public final static void endExecuting(String template, String message) throws ExecuteEndExcpetion {
+		throw new ExecuteEndExcpetion(template, message);
 	}
 	
 	public String localeText(String title) {

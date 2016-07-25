@@ -467,7 +467,7 @@ public class MvcHttpRequest implements MvcRequest {
 		if (path!=null && path.length()>0) {
 			cookie.setPath(path);
 		} else {
-			cookie.setPath("/"); //未指定path时写入“/”，避免不同调用路径无法执行达到统一结果
+			cookie.setPath("/"); //未指定path时写入“/”，避免不同调用路径执行形成不统一结果
 		}
 		try {cookie.setHttpOnly(httpOnly);} catch (NoSuchMethodError e) {} //Sevlet 3.0才支持
 		getResponse().addCookie(cookie); //注意：这里不能使用response，因为它可能是空的

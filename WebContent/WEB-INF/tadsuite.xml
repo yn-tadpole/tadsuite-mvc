@@ -114,6 +114,7 @@
    				<property name="useValidationCode" value="false" />
    				<property name="passwordEncrypt" value="COMBINE" />
    				<property name="expireMinute" value="30" />
+   				<property name="canKeepState" value="false" />
    				<property name="cookieDomain" value="" />
    				<property name="cookiePath" value="" />
    				<property name="bindClientIP" value="true" />
@@ -128,6 +129,7 @@
    				<property name="loginTemplate" value="loginTemplate" />
    				<property name="useValidationCode" value="false" />
    				<property name="passwordEncrypt" value="COMBINE" />
+   				<property name="canKeepState" value="false" />
    				<property name="expireMinute" value="30" />
    				<property name="cookieDomain" value="" />
    				<property name="cookiePath" value="" />

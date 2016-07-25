@@ -24,9 +24,6 @@ import tadsuite.mvc.utils.Utils;
 
 public final class AuthSsoClient extends AuthClient {
 	
-	private static final int VALIDATE_WRONG_PASSWORD_NUMBERS=60; //同一IP允许连续简单方式输入密码次数，超过则增加验证码
-	private String denyNumLockerForWrongPassword;
-	
 	/**存储用户会话的SESSION名称*/
 	private String  stateSessionName;
 	private String  stateValStringCookieName;
@@ -43,10 +40,11 @@ public final class AuthSsoClient extends AuthClient {
 	
 	//Configuration
 	private String authPath;
-	//private String authKey;
 	private boolean useValidationCode;
 	private String passwordEncrypt;
 	private int expireMinute;
+	private boolean canKeepState;
+	private int cookieSaveTime=-1;
 	private String cookieDomain;
 	private String cookiePath;
 	private boolean bindClientIP;
@@ -56,7 +54,7 @@ public final class AuthSsoClient extends AuthClient {
 	private MvcRequest request;
 	protected Jdbc jdbc;
 	private long timer=0;
-	private boolean ignoreValString=false; //crossDomain=false, 
+	private boolean ignoreValString=false;
 	private Logger authLogger=LogFactory.getLogger(Constants.LOGGER_NAME_AUTH);
 	
 	/**
@@ -70,8 +68,7 @@ public final class AuthSsoClient extends AuthClient {
 		timer=System.currentTimeMillis();
 		this.request=controller.request;
 		this.config=config;
-		denyNumLockerForWrongPassword="DENY_NUM_WP_"+request.getRemoteAddr();
-		ignoreValString=isIgnoreValString;
+		this.ignoreValString=isIgnoreValString;
 		
 		authPath=config.get("authPath", "");
 		if (authPath.length()<1) {
@@ -82,17 +79,15 @@ public final class AuthSsoClient extends AuthClient {
 			}
 			authPath=authPath+"Login";
 		}
-		//crossDomain=authPath.toLowerCase().startsWith("http://") || authPath.toLowerCase().startsWith("https://");
-		//authKey=readConfig("authKey", "");
+		
 		loginTemplate=config.get("loginTemplate", MvcControllerBase.RESULT_LOGIN);
-		useValidationCode=config.get("useValidationCode", "true").equals("true") || config.get("useValidationCode", "true").equals("Y") || config.get("useValidationCode", "true").equals("1");
-		if (!useValidationCode && request.cookieRead("Auth_useValidationCode").equals("Y")) {
-			useValidationCode=true;
-		}
+		useValidationCode=request.cookieRead("Auth_useValidationCode").equals("Y") || config.get("useValidationCode", "true").equals("true") || config.get("useValidationCode", "true").equals("Y") || config.get("useValidationCode", "true").equals("1");
 		passwordEncrypt=config.get("passwordEncrypt", "");
 		expireMinute=Utils.parseInt(config.get("expireMinute", "60"), 60);
+		canKeepState=config.get("canKeepState", "false").equals("true") || config.get("canKeepState", "false").equals("Y") || config.get("canKeepState", "false").equals("1");
+		cookieSaveTime=canKeepState && request.cookieRead("Auth_saveState").equals("1") ? 24*60*60  : -1;
 		cookieDomain=config.get("cookieDomain", ""); //不能加默认服务器名称，防止负载均衡丢失会话 request.getServerName()
-		cookiePath=config.get("cookiePath", ""); //单点登录不能加会话
+		cookiePath=config.get("cookiePath", ""); //单点登录不能加路径
 		bindClientIP=config.get("bindClientIP", "true").equals("true") || config.get("bindClientIP", "true").equals("Y") || config.get("bindClientIP", "true").equals("1");
 		dataSource=config.get("dataSource", "");
 		tablePrefix=config.get("tablePrefix", "");
@@ -141,7 +136,7 @@ public final class AuthSsoClient extends AuthClient {
 				if (userId==null) { //如果没有读取到会话记录，则有可能通过其它客户端退出了系统，退出后进行了重新登录
 					state=null;
 					request.sessionDelete(stateSessionName);
-					//request.cookieDelete(stateValStringCookieName, cookiePath, cookieDomain);
+					request.cookieDelete(stateValStringCookieName, cookiePath, cookieDomain);
 					//return; 不要返回，再尝试恢复
 				} else if (!state.userId.equals(userId)) {//用户已经切换了登录身份，只清除USER_STATE_DATA+appMark
 					state=null;
@@ -168,10 +163,10 @@ public final class AuthSsoClient extends AuthClient {
 			String stateIdValString=request.cookieRead(stateIdValStringCookieName);
 			
 			if (stateIdValString!=null && stateIdValString.equals(buildCookieValString(request, stateId))) {
-				generateSSOUserState(stateId);
+				generateSsoUserState(stateId, !canKeepState);
 			}
 			if (!logined) {//checkSwapKey会检查swapKey创建state && crossDomain
-				checkSSOSwapKey();
+				checkSsoSwapKey();
 			}
 		}
 		if (!logined) {//生成失败，可能因为服务器端已经退出
@@ -206,24 +201,17 @@ public final class AuthSsoClient extends AuthClient {
 		if (logined) {//只判断登录，不判断是否有进入的权限。(!bCheckAppId && logined) || testWithAppId("", "", currentAppId, false)
 			return;
 		} else {
-			int wrongPasswordCount=Application.readDenyNum(denyNumLockerForWrongPassword);
-			if (wrongPasswordCount>=VALIDATE_WRONG_PASSWORD_NUMBERS) {//要考虑同一WIFI的问题
-				useValidationCode=true;
-			}
-			
 			request.generateTokenMark(true, null);
-
 			request.getRootMap().put("auth_type", "sso");
-			//request.getRootMap().put("auth_appId", config.authAppId);
-			//request.getRootMap().put("auth_key", authKey);
 			request.getRootMap().put("auth_path", authPath);
+			request.getRootMap().put("auth_canKeepState", canKeepState);
 			request.getRootMap().put("auth_useValidationCode", useValidationCode);
 			request.getRootMap().put("auth_passwordEncrypt", passwordEncrypt);
-			request.getRootMap().put("auth_swapKey", generateSSOSwapKey());
+			request.getRootMap().put("auth_swapKey", generateSsoSwapKey());
 			MvcControllerBase.endExecuting(loginTemplate, "");
 			return;
 		}
-	}	
+	}
 
 
 	/***
@@ -231,7 +219,7 @@ public final class AuthSsoClient extends AuthClient {
 	 * 如果客户端未设置单点登录，此过程将被忽略
 	 * 生成的key存在在modal中以便通过客户端浏览器传递给认证服务器，同时也存在在SESSION中，以防止反复生成。
 	 */
-	private String generateSSOSwapKey() {
+	private String generateSsoSwapKey() {
 		boolean bGenerated=false;
 		String swapKey=(String)request.sessionRead(SWAP_KEY_SESSION_NAME);
 		if (swapKey!=null) {
@@ -256,13 +244,14 @@ public final class AuthSsoClient extends AuthClient {
 	 * 如果有userStateId，则直接生成用户会话
 	 * @return 是否交换认证信息成功
 	 */
-	private void checkSSOSwapKey() {
+	private void checkSsoSwapKey() {
 		String swapKey=(String)request.sessionRead(SWAP_KEY_SESSION_NAME);
 		String swapKeyValString=request.cookieRead(swapKeyValStringCookieName);
 		if (swapKey!=null) {
 			if (!swapKeyValString.equalsIgnoreCase(buildSessionValString(request, swapKey, bindClientIP))) {
 				//验证失败的swapKey需要删除
 				request.sessionDelete(SWAP_KEY_SESSION_NAME);
+				request.cookieDelete(swapKeyValStringCookieName, cookiePath, cookieDomain);
 				return;
 			}
 			//这种情况是已生成一个验证请求字，但登录会话不存在
@@ -270,21 +259,23 @@ public final class AuthSsoClient extends AuthClient {
 			if (stateId!=null) {
 				if (stateId.length()>0) {//如果认证服务器已经响应了交换请求则读取它，并将其从数据库中删除
 					jdbc.execute("delete from t_auth_swap where token=?", swapKey);
-					generateSSOUserState(stateId, false); //这里使用false是因为要实现Session超时，但服务器未重启时能够正常重视
+					generateSsoUserState(stateId, false); //这里使用false是因为要实现Session超时，但服务器未重启时能够正常重建
 					//已使用的swapKey需要删除
 					request.sessionDelete(SWAP_KEY_SESSION_NAME);
+					request.cookieDelete(swapKeyValStringCookieName, cookiePath, cookieDomain);
 					return;
 				}//已找到但未交换成功的先保留
 			} else {
 				//没找到的swapKey需要删除
 				request.sessionDelete(SWAP_KEY_SESSION_NAME);
+				request.cookieDelete(swapKeyValStringCookieName, cookiePath, cookieDomain);
 				return;
 			}
 		}
 	}
 	
-	public void generateSSOUserState(String stateId) {
-		generateSSOUserState(stateId, true);
+	public void generateSsoUserState(String stateId) {
+		generateSsoUserState(stateId, true);
 	}
 
 	/**
@@ -293,9 +284,8 @@ public final class AuthSsoClient extends AuthClient {
 	 * @param checkSecurity 是否执行安全检查
 	 * @return
 	 */
-	public void generateSSOUserState(String stateId, boolean checkSecurity) {
-		if (checkSecurity && STATE_MAP!=null) {
-			//此处对stateId进行检测，如果该stateId已经被某一客户端建立了会话，则不允许再建立。这样既保证多机集群可以使用Cookie创建会话，又保证不被会话劫持			
+	public void generateSsoUserState(String stateId, boolean checkSecurity) {
+		if (checkSecurity && STATE_MAP!=null) {//此处对stateId进行检测，如果该stateId已经被某一客户端建立了会话，则不允许再建立。这样既保证多机集群可以使用Cookie创建会话，又保证不被会话劫持			
 			if (STATE_MAP.containsKey(stateId)) {
 				return;
 			}
@@ -358,8 +348,9 @@ public final class AuthSsoClient extends AuthClient {
 		request.sessionReset();
 		request.sessionWrite(stateSessionName, state);
 		request.cookieWrite(stateValStringCookieName, buildSessionValString(request, stateId, bindClientIP), cookiePath, cookieDomain);
-		request.cookieWrite(stateIdCookieName, stateId, cookiePath, cookieDomain);
-		request.cookieWrite(stateIdValStringCookieName, buildCookieValString(request, stateId), cookiePath, cookieDomain);
+		request.cookieWrite(stateIdCookieName, stateId, cookieSaveTime, cookiePath, cookieDomain, true);
+		request.cookieWrite(stateIdValStringCookieName, buildCookieValString(request, stateId), cookieSaveTime, cookiePath, cookieDomain, true);
+		request.cookieDelete(swapKeyValStringCookieName, cookiePath, cookieDomain);
 		request.generateTokenMark(true, null);
 		refreshUserState(true);//由于创建时没有刷新用户状态，所以应该刷新一下。
 		logined=true;
@@ -405,8 +396,7 @@ public final class AuthSsoClient extends AuthClient {
 			jdbc.execute("delete from t_auth_swap where create_time<?", cal.getTime());
 			
 			//清除已经超时的会话
-			jdbc.execute("update t_auth_log set is_online=0, exit_time="+jdbc.sql_now()+", last_active_time=(select active_time from t_auth_state s where s.id=t_auth_log.state_id) where is_online=1 and state_id in (select id from t_auth_state where active_time<?) "
-					, cal.getTime());
+			jdbc.execute("update t_auth_log set is_online=0, exit_time="+jdbc.sql_now()+", last_active_time=(select active_time from t_auth_state s where s.id=t_auth_log.state_id) where is_online=1 and state_id in (select id from t_auth_state where active_time<?) ", cal.getTime());
 			int k=jdbc.execute("delete from t_auth_state where active_time<?", cal.getTime());
 			if (k>0) {
 				authLogger.info("AuthClient - cleanup {} user states whitch inactive in {} minutes.", k, expireMinute);

@@ -22,9 +22,10 @@ import tadsuite.mvc.utils.Utils;
 
 public final class AuthSimpleClient extends AuthClient {
 	
-	private static final int VALIDATE_WRONG_PASSWORD_NUMBERS=6; //同一IP允许连续简单方式输入密码次数，超过则增加验证码
+	private static final int VALIDATE_WRONG_PASSWORD_NUMBERS=60; //同一IP允许连续简单方式输入密码次数，超过则增加验证码
 	private static final int LOCK_WRONG_PASSWORD_NUMBERS=90; //同一IP允许连续输入密码次数，超过则锁定IP
 	private static final int LOCK_WRONG_VALCODE_NUMBERS=300; //同一IP允许连续输入错误的验证码次数，超过则锁定IP
+	private static final int LOCK_USERNAME_NUMBERS=30; //同一用户名允许尝试密码的次数，超过则锁定用户
 	private String denyNumLockerForWrongPassword;
 	private String denyNumLockerForWrongValidateCode;
 	
@@ -44,6 +45,8 @@ public final class AuthSimpleClient extends AuthClient {
 	private boolean useValidationCode;
 	private String passwordEncrypt;
 	private int expireMinute;
+	private boolean canKeepState;
+	private int cookieSaveTime=-1;
 	private String cookieDomain;
 	private String cookiePath;
 	private boolean bindClientIP;
@@ -77,6 +80,7 @@ public final class AuthSimpleClient extends AuthClient {
 		loginTemplate=config.get("loginTemplate", MvcControllerBase.RESULT_LOGIN);
 		useValidationCode=config.get("useValidationCode", "true").equals("true") || config.get("useValidationCode", "true").equals("Y") || config.get("useValidationCode", "true").equals("1");
 		bindClientIP=config.get("bindClientIP", "true").equals("true") || config.get("bindClientIP", "true").equals("Y") || config.get("bindClientIP", "true").equals("1");
+		canKeepState=config.get("canKeepState", "false").equals("true") || config.get("canKeepState", "false").equals("Y") || config.get("canKeepState", "false").equals("1");
 		expireMinute=Utils.parseInt(config.get("expireMinute", "60"), 60);
 		passwordEncrypt=config.get("passwordEncrypt", "");
 		cookieDomain=config.get("cookieDomain", ""); //不能加默认服务器名称，防止负载均衡丢失会话 request.getServerName()
@@ -107,11 +111,11 @@ public final class AuthSimpleClient extends AuthClient {
 		
 		String authAction = request.readInput("auth_action");
 		if (authAction.equals("login")) {// 已提交用户名密码
-			String result = login(request.readInput("fdUsername"), request.readInput("fdPassword"), request.readInput("fdValidationStr"));
+			String result = login(request.readInput("fdUsername"), request.readInput("fdPassword"), request.readInput("fdValidationStr"), request.readInput("fdSaveState").equals("1"));
 			MvcControllerBase.endExecuting(MvcControllerBase.RESULT_TEXT, buildResult(true, result.equals("success") ? "success" : "error", result));
 			return;
 
-		} else if (authAction.equals("getval")) {// 已提交用户名密码
+		} else if (authAction.equals("getval")) {//获取验证码
 			generateValidateCode();
 			MvcControllerBase.endExecuting();
 			return;
@@ -194,6 +198,7 @@ public final class AuthSimpleClient extends AuthClient {
 			request.getRootMap().put("auth_type", "simple");
 			request.getRootMap().put("auth_path", "");
 			request.getRootMap().put("auth_useValidationCode", useValidationCode);
+			request.getRootMap().put("auth_canKeepState", canKeepState);
 			request.getRootMap().put("auth_passwordEncrypt", passwordEncrypt);
 			request.getRootMap().put("auth_swapKey", generateSwapKey());
 			MvcControllerBase.endExecuting(loginTemplate, "");
@@ -230,7 +235,6 @@ public final class AuthSimpleClient extends AuthClient {
 			}
 			return "0";
 		} else {
-			//输对一次验证码，怎么有清除输错密码的次数呢？TadsuiteApplication.deleteDenyNum(denyNumLockerForWrongPassword); //锁定IP后可以清除输入错误的次数
 			return "1";
 		}
 	}
@@ -238,8 +242,9 @@ public final class AuthSimpleClient extends AuthClient {
 	/**使用所提供的用户名、密码登录系统，仅限Simple方式的认证。
 	 * @param jdbc  数据库对象
 	  */
-	private String login(String username, String password, String validationStr) {
+	private String login(String username, String password, String validationStr, boolean keepState) {
 		request.checkCsrfToken();
+		cookieSaveTime=canKeepState && keepState ? 24*60*60  : -1;
 		
 		String strRemoteIP=request.getRemoteAddr();
 		if (!Application.sysLock_check(strRemoteIP, false)) {
@@ -275,9 +280,16 @@ public final class AuthSimpleClient extends AuthClient {
 				return request.readLocaleText("Validation_Code_Error");
 			}
 		}
-		if (username.length()<1) {
+		if (username.length()<1 || username.length()>50) {
 			return request.readLocaleText("Username_Is_Required");
 		}
+		String denyNumLockerForUsername="DENY_NUM_USER_"+username;
+		int wrongPasswordForUsername=Application.readDenyNum(denyNumLockerForUsername);
+		if (wrongPasswordForUsername>=LOCK_USERNAME_NUMBERS) {//这里不再锁IP，而不保留会该用户的锁定（一小时）
+			authLogger.warn("AuthClient - too times for wrong password for user : {} ", username);
+			return request.readLocaleText("Too_Times_To_Try_Password");
+		}
+				
 		StringBuffer colString=new StringBuffer();
 		LinkedHashMap<String, String> colMap=new LinkedHashMap<String, String>();
 		for (String item : tableColList.split(",")) {
@@ -314,6 +326,7 @@ public final class AuthSimpleClient extends AuthClient {
 			if (!password.equals(Utils.sha256(row.get("password")+swapKey))) {
 				authLogger.trace("AuthClient - wrong password for user : {}, from: {}", username, request.getRemoteAddr());
 				Application.writeDenyNum(denyNumLockerForWrongPassword, wrongPasswordCount+1);
+				Application.writeDenyNum(denyNumLockerForUsername, wrongPasswordForUsername+1);
 				return wrongPasswordCount>=VALIDATE_WRONG_PASSWORD_NUMBERS-1 && !useValidationCode ? "validate" : request.readLocaleText("Wrong_Username_Or_Password");
 			} 
 			if (colMap.containsKey("status")) {
@@ -403,7 +416,7 @@ public final class AuthSimpleClient extends AuthClient {
 			return false;
 		} else {
 			Date loginTime=(Date)row.get("login_time");
-			if (loginTime!=null && loginTime.getTime()<Utils.now().getTime()-expireMinute*60000) {
+			if (cookieSaveTime==-1 && loginTime!=null && loginTime.getTime()<Utils.now().getTime()-expireMinute*60000) {
 				authLogger.trace("AuthClient - timeout stateId to recovery : {}, {}", request.getRemoteAddr(), stateId);
 				return false;
 			}
@@ -454,8 +467,8 @@ public final class AuthSimpleClient extends AuthClient {
 		request.sessionReset();
 		request.sessionWrite(stateSessionName, state);
 		request.cookieWrite(stateValStringCookieName, buildSessionValString(request, stateId, bindClientIP), cookiePath, cookieDomain);
-		request.cookieWrite(stateIdCookieName, stateId, cookiePath, cookieDomain);
-		request.cookieWrite(stateIdValStringCookieName, buildCookieValString(request, stateId), cookiePath, cookieDomain);
+		request.cookieWrite(stateIdCookieName, stateId, cookieSaveTime, cookiePath, cookieDomain, true);
+		request.cookieWrite(stateIdValStringCookieName, buildCookieValString(request, stateId), cookieSaveTime, cookiePath, cookieDomain, true);
 		request.generateTokenMark(true, token);
 		logined=true;
 
@@ -479,7 +492,7 @@ public final class AuthSimpleClient extends AuthClient {
 	 */
 	private boolean refreshUserState(boolean isNewState) {
 		long time=Utils.now().getTime();
-		if (!isNewState && state.lastAccessTime<time-expireMinute*60000) {//timeout
+		if (cookieSaveTime==-1 && !isNewState && state.lastAccessTime<time-expireMinute*60000) {//timeout
 			return false;
 		}
 		state.lastAccessTime=time;
