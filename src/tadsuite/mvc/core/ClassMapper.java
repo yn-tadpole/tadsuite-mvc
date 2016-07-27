@@ -101,7 +101,7 @@ public class ClassMapper {
 				mappingItem.methodName=methodName;
 				mappingItem.basePath=rule.urlPrefix+basePath;
 				mappingItem.rewriteURL=isRuterClass ? rewriteURL : "";
-				mappingItem.templatePrefix=rule.templatePrefix!=null && rule.templatePrefix.length()>0 ? rule.templatePrefix : mappingItem.basePath;
+				mappingItem.templatePrefix=rule.templatePrefix!=null && rule.templatePrefix.length()>1 ? rule.templatePrefix : mappingItem.basePath; //templatePrefix默认值是“/”，如果是“/”或空，则应该换为basePath
 				mappingItem.parseTime=Utils.now().getTime();
 				CACHE_MAP.put(url, mappingItem);
 				return mappingItem;

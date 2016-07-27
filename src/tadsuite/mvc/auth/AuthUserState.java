@@ -12,7 +12,7 @@ import tadsuite.mvc.utils.Utils;
 public class AuthUserState {
 	
 	/**用户基本信息*/
-	public String  authAppId, stateId, userId, userName, dpmId, dpmName, loginIP, prevLoginIP;
+	public String  authAppId, authPath, stateId, userId, userName, dpmId, dpmName, loginIP, prevLoginIP;
 	public Date loginTime, prevLoginTime;
 	public int loginCount=0;
 	public long stateRefreshTime=0; //会话数据刷新时间，在SSO模式下，会话状态需刷新至数据库，这里记录最后一次刷新的时间
@@ -32,10 +32,11 @@ public class AuthUserState {
 	
 	private Jdbc jdbcStandby;
 	
-	public AuthUserState(String authAppId, String stateId, String userId, String userName, String dpmId, String dpmName, String loginIp, int loginCount, Date loginTime, Date prevLoginTime, String prevLoginIp, Jdbc jdbcStandby) {
+	public AuthUserState(String authAppId, String authPath, String stateId, String userId, String userName, String dpmId, String dpmName, String loginIp, int loginCount, Date loginTime, Date prevLoginTime, String prevLoginIp, Jdbc jdbcStandby) {
 		lastAccessTime=Utils.now().getTime();
 		stateRefreshTime=Utils.now().getTime();
 		this.authAppId=authAppId;
+		this.authPath=authPath;
 		this.stateId=stateId;
 		this.userId=userId;
 		this.userName=userName;
@@ -469,6 +470,9 @@ public class AuthUserState {
 	
 	public String getCurrentAppId() {
 		return authAppId;
+	}
+	public String getAuthPath() {
+		return authPath;
 	}
 	public String getStateId() {
 		return stateId;

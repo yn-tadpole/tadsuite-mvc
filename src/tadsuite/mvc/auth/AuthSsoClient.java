@@ -304,7 +304,7 @@ public final class AuthSsoClient extends AuthClient {
 		Date prevLoginTime=(Date)map.get("prev_login_time");
 		String prevLoginIP=(String)map.get("prev_login_ip");
 		
-		state=new AuthUserState(config.authAppId, stateId, userId, userName, dpmId, dpmName, loginIP, loginCount, loginTime, prevLoginTime, prevLoginIP, jdbc);
+		state=new AuthUserState(config.authAppId, authPath, stateId, userId, userName, dpmId, dpmName, loginIP, loginCount, loginTime, prevLoginTime, prevLoginIP, jdbc);
 		state.userDataMap.putAll(map);
 		
 		ArrayList<LinkedHashMap<String, Object>> userDpmList=new ArrayList<>();
