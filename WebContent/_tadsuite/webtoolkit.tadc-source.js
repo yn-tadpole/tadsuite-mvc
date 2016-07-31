@@ -27,7 +27,7 @@
 	var _ajax=$.ajax;
 	var _ajax_error;
 	var _ajax_success;
-	
+	/*
 	var _new_ajax_error=function(XHR, data, status) {
 		data=data.toString();
 		if (_ajax_error)  {
@@ -45,7 +45,7 @@
 				APPL.ajaxError(msg);
 			} catch (e) {
 				alert("服务器端发生错误");//（可定义APPL.ajaxError(data, status)进行处理）
-			}*/
+			}*-/
 		}
 	};
 	
@@ -76,7 +76,7 @@
 				_new_ajax_error(XHR, msg, status);
 			}
 		}
-	};
+	};*/
 	
 	$.ajax=function(options) {
 		//var _data = $.extend(data,{token : $(document).data("tokenName"), seedName : $(document).data("seedName")});  
@@ -98,10 +98,11 @@
 			  options.data=data;
 			}
 		}
-		_ajax_error=options.error;
-		_ajax_success=options.success;
-		options.error=_new_ajax_error;
-		options.success=_new_ajax_success;
+    //这里不能进行单线程缓存，否则可能导致多个AJAX执行时回调函数被错误地覆盖
+		//_ajax_error=options.error;
+		//_ajax_success=options.success;
+		//options.error=_new_ajax_error;
+		//options.success=_new_ajax_success;
 		return _ajax(options);
 	};
 	
