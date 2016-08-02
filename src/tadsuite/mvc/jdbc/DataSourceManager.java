@@ -148,7 +148,7 @@ public class DataSourceManager {
 			} else { //all
 				wallConfig.setMultiStatementAllow(true);//multiStatementAllow 	false 	是否允许一次执行多条语句，缺省关闭
 			}
-						
+			wallConfig.setStrictSyntaxCheck(false);
 			wallConfig.setCommentAllow(true);//commentAllow 	false 	是否允许语句中存在注释，Oracle的用户不用担心，Wall能够识别hints和注释的区别			
 			//commitAllow 	true 	是否允许执行commit操作
 			//rollbackAllow 	true 	是否允许执行roll back操作

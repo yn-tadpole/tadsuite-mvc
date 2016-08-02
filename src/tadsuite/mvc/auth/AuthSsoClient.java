@@ -92,11 +92,11 @@ public final class AuthSsoClient extends AuthClient {
 		dataSource=config.get("dataSource", "");
 		tablePrefix=config.get("tablePrefix", "");
 		
-		stateSessionName="STATE_"+Utils.md5(config.authAppId+authPath);
+		stateSessionName="STATE_"+Utils.md5(authPath); //config.authAppId+
 		stateValStringCookieName="S"+Utils.md5("SVSCN"+config.authAppId+authPath).toUpperCase();
-		stateIdCookieName="S"+Utils.md5("SICN"+config.authAppId+authPath).toUpperCase();
-		stateIdValStringCookieName="S"+Utils.md5("SIVCN"+config.authAppId+authPath).toUpperCase();
-		swapKeyValStringCookieName="S"+Utils.md5("SKVCN"+config.authAppId+authPath).toUpperCase();
+		stateIdCookieName="S"+Utils.md5("SICN"+authPath).toUpperCase(); ////config.authAppId+不附加AppId是为了同域下的不同App之间单点登录不需要跳到登录页
+		stateIdValStringCookieName="S"+Utils.md5("SIVCN"+authPath).toUpperCase(); //config.authAppId+
+		swapKeyValStringCookieName="S"+Utils.md5("SKVCN"+config.authAppId+ authPath).toUpperCase();
 		logined=false;
 		
 		if (config.authAppId.length()<1) {
@@ -304,7 +304,7 @@ public final class AuthSsoClient extends AuthClient {
 		Date prevLoginTime=(Date)map.get("prev_login_time");
 		String prevLoginIP=(String)map.get("prev_login_ip");
 		
-		state=new AuthUserState(config.authAppId, authPath, stateId, userId, userName, dpmId, dpmName, loginIP, loginCount, loginTime, prevLoginTime, prevLoginIP, jdbc);
+		state=new AuthUserState(config, authPath, stateId, userId, userName, dpmId, dpmName, loginIP, loginCount, loginTime, prevLoginTime, prevLoginIP, jdbc);
 		state.userDataMap.putAll(map);
 		
 		ArrayList<LinkedHashMap<String, Object>> userDpmList=new ArrayList<>();

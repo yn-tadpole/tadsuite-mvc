@@ -18,7 +18,7 @@ public class AuthUserState {
 	public long stateRefreshTime=0; //会话数据刷新时间，在SSO模式下，会话状态需刷新至数据库，这里记录最后一次刷新的时间
 	public long lastAccessTime=0; //访问时间，即最后一次使用该会话的时间，用于判断会话是否应该超时
 	/**用户配置信息*/
-	public LinkedHashMap<String, String> config=new LinkedHashMap<String, String>();
+	private AuthClientConfig  config=null;
 	/**该用户所拥有的所有权限，结构为：＜应用系统appId，＜权限全标识code.moduleId，＜授权单位ID，授权单位名称＞＞＞*/
 	public LinkedHashMap<String, LinkedHashMap<String, LinkedHashMap<String, String>>> permissionContainer=new LinkedHashMap<String, LinkedHashMap<String, LinkedHashMap<String, String>>>();
 	/**已对本用户授权的所单位Map（Map中存储单位详细信息），结构为：＜应用系统appId，＜授权单位ID，授权单位名称＞＞*/
@@ -32,10 +32,11 @@ public class AuthUserState {
 	
 	private Jdbc jdbcStandby;
 	
-	public AuthUserState(String authAppId, String authPath, String stateId, String userId, String userName, String dpmId, String dpmName, String loginIp, int loginCount, Date loginTime, Date prevLoginTime, String prevLoginIp, Jdbc jdbcStandby) {
+	public AuthUserState(AuthClientConfig config, String authPath, String stateId, String userId, String userName, String dpmId, String dpmName, String loginIp, int loginCount, Date loginTime, Date prevLoginTime, String prevLoginIp, Jdbc jdbcStandby) {
 		lastAccessTime=Utils.now().getTime();
 		stateRefreshTime=Utils.now().getTime();
-		this.authAppId=authAppId;
+		this.config=config;
+		this.authAppId=config.authAppId;
 		this.authPath=authPath;
 		this.stateId=stateId;
 		this.userId=userId;
@@ -478,7 +479,7 @@ public class AuthUserState {
 		return stateId;
 	}
 	public String getConfig(String key) {
-		return config.containsKey(key) ? config.get(key) : null;
+		return config.get(key, "");
 	}
 	public Object getData(String key) {
 		return userDataMap.containsKey(key) ? userDataMap.get(key) : null;

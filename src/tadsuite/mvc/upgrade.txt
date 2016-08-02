@@ -18,5 +18,28 @@ Utils.sessionWrite(controller, 	>		controller.request.sessionWrite(
 
 MvcModalBase-》MvcServiceBase
 AuthClient	-》AuthUserState
-MODAL_...	替换为 RESULT_...
+MODAL_...	替换为 SERVICE_...
 controller.readInput..	-> request.readInput
+
+import tadsuite.core.Jdbc;		>			import tadsuite.mvc.jdbc.Jdbc;
+
+import java.util.HashMap;		>			import java.util.LinkedHashMap;
+
+mapResult=new HashMap<String, Object>();  >  mapResult=new LinkedHashMap<>();
+mapResult= new HashMap<String, Object>();
+
+listResult =new ArrayList<HashMap>();    >   listResult =new ArrayList<>();
+listResult = new ArrayList<HashMap>();   >   listResult =new ArrayList<>();
+
+HashMap<String, Object> row = new HashMap<String, Object>();		>			LinkedHashMap<String, Object> row= new LinkedHashMap<String, Object>();
+HashMap<String, Object> row= new HashMap<String, Object>();		>			LinkedHashMap<String, Object> row= new LinkedHashMap<String, Object>();
+HashMap<String, Object> row=new HashMap<String, Object>();		>			LinkedHashMap<String, Object> row=new LinkedHashMap<String, Object>();
+HashMap<String, String> row=new HashMap<String, String>();		>			LinkedHashMap<String, Object> row=new LinkedHashMap<String, Object>();
+
+
+auth.getDbSchema()			>			auth.getConfig("tablePrefix")
+Utils.config(servlet, 		>			Application.getConfig(
+auth.readHoldDpmMap		>		auth.readAuthedDpmMap
+
+jdbc.setAutoCommit(true);		>		jdbc.endTransaction();
+
