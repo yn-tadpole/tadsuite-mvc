@@ -994,22 +994,26 @@ public class JdbcExecutor {
 	public JdbcExecutor setJdbcParams(JdbcParams params) {
 		for (String item : params.keySet()) {
 			String type=params.getTypeName(item);
-			if ("String".equals(type)) {
-				setString(item, (String)params.get(item));
-			} else if ("Long".equals(type)) {
-				setLong(item, (Long)params.get(item));
-			} else if ("Int".equals(type)) {
-				setInt(item, (Integer)params.get(item));
-			} else if ("Float".equals(type)) {
-				setFloat(item, (Float)params.get(item));
-			} else if ("Double".equals(type)) {
-				setDouble(item, (Double)params.get(item));
-			} else if ("Datetime".equals(type)) {
-				setDate(item, (Date)params.get(item));
-			} else if ("Decimal".equals(type)) {
-				setDecimal(item, (BigDecimal)params.get(item));
+			if (params.get(item)==null) {
+				setNull(item, params.getSqlType(item));
 			} else {
-				setString(item, String.valueOf(params.get(item)));
+				if ("String".equals(type)) {
+					setString(item, (String)params.get(item));
+				} else if ("Long".equals(type)) {
+					setLong(item, (Long)params.get(item));
+				} else if ("Int".equals(type)) {
+					setInt(item, (Integer)params.get(item));
+				} else if ("Float".equals(type)) {
+					setFloat(item, (Float)params.get(item));
+				} else if ("Double".equals(type)) {
+					setDouble(item, (Double)params.get(item));
+				} else if ("Datetime".equals(type)) {
+					setDate(item, (Date)params.get(item));
+				} else if ("Decimal".equals(type)) {
+					setDecimal(item, (BigDecimal)params.get(item));
+				} else {
+					setString(item, String.valueOf(params.get(item)));
+				}
 			}
 		}
 		return this;
