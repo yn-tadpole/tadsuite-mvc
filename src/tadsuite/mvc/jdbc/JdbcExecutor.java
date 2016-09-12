@@ -993,10 +993,10 @@ public class JdbcExecutor {
 	
 	public JdbcExecutor setJdbcParams(JdbcParams params) {
 		for (String item : params.keySet()) {
+			String type=params.getTypeName(item);
 			if (params.get(item)==null) {
 				setNull(item, params.getSqlType(item));
 			} else {
-				String type=params.getTypeName(item);
 				if ("String".equals(type)) {
 					setString(item, (String)params.get(item));
 				} else if ("Long".equals(type)) {
