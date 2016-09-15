@@ -6,6 +6,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import tadsuite.mvc.utils.Utils.FORMAT;
+
 public interface MvcRequest {
 	
 	public LinkedHashMap<String, Object> getRootMap();
@@ -43,6 +45,13 @@ public interface MvcRequest {
 	public String readInput(String index);
 	public String readInput(String index, int maxLength);
 	public String readInput(String index, int maxLength, String defaultValue);
+	public String readInput(String index, FORMAT format);
+	public String readId(String index);
+	public String readLetter(String index);
+	public int readInt(String index, int defaultValue);
+	public long readLong(String index, long defaultValue);
+	public float readFloat(String index, float defaultValue);
+	public double readDouble(String index, double defaultValue);
 	public String[] readInputArray(String index);
 	public Map<String, String> readInputMap(String indexString);
 	public String readInputEscapeSQL(String index);

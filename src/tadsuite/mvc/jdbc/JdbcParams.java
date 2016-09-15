@@ -116,7 +116,7 @@ public class JdbcParams extends LinkedHashMap<String, Object> {
 					if (value.length()>max) {
 						value=value.substring(0, max);
 					}
-				} else {//否则按正确表达式处理
+				} else {//否则按正则表达式处理
 					if (!Utils.regi(paramName, value)) {
 						value="";
 					}

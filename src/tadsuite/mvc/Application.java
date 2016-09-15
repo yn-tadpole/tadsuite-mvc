@@ -374,17 +374,19 @@ public class Application {
 		LinkedHashMap<String, String> newAuthExcludedMap= new LinkedHashMap<String, String>();
 		LinkedHashMap<String, String> newAuthProtechedUrlMap=new LinkedHashMap<String, String>();
 		Element protechedUrlElement=(Element)element.getElementsByTagName("ProtechedURL").item(0);
-		NodeList protechedRuleList=protechedUrlElement.getElementsByTagName("Rule");
-		for (int i=0; i<protechedRuleList.getLength(); i++) {
-			Element route=(Element)protechedRuleList.item(i);
-			String excluded=route.getAttribute("excludedURL");
-			String prefix=route.getAttribute("prefix");
-			String appId=route.getAttribute("authAppId");
-			if (excluded.length()>0) {
-				newAuthExcludedMap.put(excluded, excluded);
-			}  
-			if (prefix!=null && prefix.length()>0) {
-				newAuthProtechedUrlMap.put(prefix, appId);
+		if (element.getElementsByTagName("ProtechedURL").getLength()>0) {
+			NodeList protechedRuleList=protechedUrlElement.getElementsByTagName("Rule");
+			for (int i=0; i<protechedRuleList.getLength(); i++) {
+				Element route=(Element)protechedRuleList.item(i);
+				String excluded=route.getAttribute("excludedURL");
+				String prefix=route.getAttribute("prefix");
+				String appId=route.getAttribute("authAppId");
+				if (excluded.length()>0) {
+					newAuthExcludedMap.put(excluded, excluded);
+				}  
+				if (prefix!=null && prefix.length()>0) {
+					newAuthProtechedUrlMap.put(prefix, appId);
+				}
 			}
 		}
 		authProtechedUrlMap=newAuthProtechedUrlMap;

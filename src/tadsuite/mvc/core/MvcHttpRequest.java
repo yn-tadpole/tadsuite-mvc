@@ -16,6 +16,7 @@ import tadsuite.mvc.logging.LogFactory;
 import tadsuite.mvc.security.WebSecurityFirewall;
 import tadsuite.mvc.utils.Constants;
 import tadsuite.mvc.utils.Utils;
+import tadsuite.mvc.utils.Utils.FORMAT;
 
 public class MvcHttpRequest implements MvcRequest {
 	
@@ -151,51 +152,23 @@ public class MvcHttpRequest implements MvcRequest {
 	
 
 	public String getHeader(String parameter) {
-		String value = httpRequest.getHeader(parameter);
-		if (value == null) {
-			int x=parameter.lastIndexOf(":");
-			if (x==-1) {
-				return "";
-			} else {
-				value=httpRequest.getHeader(parameter.substring(0, x));
-				if (value==null) {
-					return "";
-				}
-			}
-		}
-		return checkXss(parameter, value);
+		int x=parameter.lastIndexOf(":");
+		String value=httpRequest.getHeader(x==-1 ? parameter : parameter.substring(0, x));
+		return value == null ? "" : checkXss(parameter, value);
 	}
 
 	public String getParameter(String parameter) {
-		String value = httpRequest.getParameter(parameter);
-		if (value == null) {
-			int x=parameter.lastIndexOf(":");
-			if (x==-1) {
-				return "";
-			} else {
-				value=httpRequest.getParameter(parameter.substring(0, x));
-				if (value==null) {
-					return "";
-				}
-			}
-		}
-		return checkXss(parameter, value);
+		int x=parameter.lastIndexOf(":");
+		String value=httpRequest.getParameter(x==-1 ? parameter : parameter.substring(0, x));
+		return value == null ? "" : checkXss(parameter, value);
 	}
 
 	public String[] getParameterValues(String parameter) {
-		String[] values = httpRequest.getParameterValues(parameter);
+		int x=parameter.lastIndexOf(":");
+		String[] values=httpRequest.getParameterValues(x==-1 ? parameter : parameter.substring(0, x));
 		if (values==null) {
-			int x=parameter.lastIndexOf(":");
-			if (x==-1) {
-				return new String[]{};
-			} else {
-				values=httpRequest.getParameterValues(parameter.substring(0, x));
-				if (values==null) {
-					return new String[]{};
-				}
-			}
+			return new String[]{};
 		}
-		
 		int count = values.length;
 		String[] encodedValues = new String[count];
 		for (int i = 0; i < count; i++) {
@@ -225,42 +198,48 @@ public class MvcHttpRequest implements MvcRequest {
 			}
 		}
 		if (name.indexOf(":")!=-1) {
-			if (name.endsWith(":html")) {//参数名以“.html”结尾
+			if (name.endsWith(":html")) {
 				return Utils.sanitizeHtml(value);
 				
-			} else if (name.endsWith(":code")) {//参数名以“.code”结尾
+			} else if (name.endsWith(":code")) {
 				return Utils.htmlEncodeWithBr(value);
-				
-			} else if (name.endsWith(":text")) {//参数名以“.text”结尾
+
+			} else if (name.endsWith(":text")) {
 				return Utils.htmlEncode(value);
+
+			} else if (name.endsWith(":id")) {
+				return Utils.isId(value) ? value : "";
 				
-			} else if (name.endsWith(":int")) {//参数名以“.int”结尾
+			} else if (name.endsWith(":int")) {
 				return Utils.isInt(value) ? value : "";
 				
-			} else if (name.endsWith(":long")) {//参数名以“.long”结尾
+			} else if (name.endsWith(":long")) {
 				return Utils.isLong(value) ? value : "";
 				
-			} else if (name.endsWith(":number")) {//参数名以“.number”结尾
+			} else if (name.endsWith(":number")) {
 				return Utils.isNumber(value) ? value : "";
+
+			} else if (name.endsWith(":letter")) {
+				return Utils.regi("^[a-zA-Z0-9\\-_]$", value) ? value : "";
 				
-			} else if (name.endsWith(":float")) {//参数名以“.float”结尾
+			} else if (name.endsWith(":float")) {
 				return Utils.isFloat(value) ? value : "";
 				
-			} else if (name.endsWith(":double")) {//参数名以“.double”结尾
+			} else if (name.endsWith(":double")) {
 				return Utils.isDouble(value) ? value : "";
 
-			} else if (name.endsWith(":date")) {//参数名以“.date”结尾
+			} else if (name.endsWith(":date")) {
 				return Utils.isDate(value, "yyyy-MM-dd") ? value : "";
 
-			} else if (name.endsWith(":datetime")) {//参数名以“.datetime”结尾
+			} else if (name.endsWith(":datetime")) {
 				return Utils.isDate(value, "yyyy-MM-dd HH:mm") ? value : "";
 			}
 		}
 		//默认只取第一行（要取多行必须以“.html/.code/.text”结尾的参数进行读取）
-		int x=value.indexOf("\n");
-		if (x!=-1) {
-			value=value.substring(0, x);
-		}
+		//int x=value.indexOf("\n");
+		//if (x!=-1) {
+		//	value=value.substring(0, x);
+		//}
 		if (value.length()>Application.getParameterValueMaxLength()) {
 			value=value.substring(0, Application.getParameterValueMaxLength());
 		}
@@ -268,12 +247,55 @@ public class MvcHttpRequest implements MvcRequest {
 	}
 	
 	public String readInput(String index) {
-		String str=getParameter(index);
-		if (str!=null) {
-			return str.trim();
-		} else {
-			return "";
+		return getParameter(index).trim();
+	}
+	
+	public String readInput(String index, FORMAT format) {
+		if (index.indexOf(":")!=-1) {
+			throw new RuntimeException("Can't use both ':' type and 'FORMAT' pamameter!");
 		}
+		switch (format) {
+		case ID:
+			index=index+":id";
+			break;
+		case LETTER:
+			index=index+":letter";
+			break;
+		case HTML:
+			index=index+":html";
+			break;
+		case TEXT:
+			index=index+":text";
+			break;
+		case CODE: 
+			index=index+":code";
+			break;
+		case INT:
+			index=index+":int";
+			break;
+		case LONG:
+			index=index+":long";
+			break;
+		case FLOAT:
+			index=index+":float";
+			break;
+		case DOUBLE:
+			index=index+":double";
+			break;
+		case NUMBER:
+			index=index+":number";
+			break;
+		case DATE:
+			index=index+":date";
+			break;
+		case DATETIME:
+			index=index+":datetime";
+			break;
+		case NORMAL:
+		default:
+			break;
+		}
+		return getParameter(index).trim();
 	}
 	
 	public String readInput(String index, int maxLength) {
@@ -281,9 +303,38 @@ public class MvcHttpRequest implements MvcRequest {
 		return value.length()>maxLength ? value.substring(0, maxLength) : value;
 	}
 	
+	public String readId(String index) {
+		String value=readInput(index);
+		return Utils.isId(value) ? value : "";
+	}
+	public String readLetter(String index) {
+		String value=readInput(index);
+		return Utils.regi("^[a-zA-Z0-9\\-_]{1,100}$", value) ? value : "";
+	}
+	
 	public String readInput(String index, int maxLength, String defaultValue) {
 		String value=readInput(index);
 		return value.length()>maxLength ? value.substring(0, maxLength) : value.length()<1 ? defaultValue  : value;
+	}
+	
+	public int readInt(String index, int defaultValue) {
+		String value=readInput(index);
+		return Utils.parseInt(value, defaultValue);
+	}
+
+	public long readLong(String index, long defaultValue) {
+		String value=readInput(index);
+		return Utils.parseLong(value, defaultValue);
+	}
+
+	public float readFloat(String index, float defaultValue) {
+		String value=readInput(index);
+		return Utils.parseFloat(value, defaultValue);
+	}
+
+	public double readDouble(String index, double defaultValue) {
+		String value=readInput(index);
+		return Utils.parseDouble(value, defaultValue);
 	}
 		
 	public String[] readInputArray(String index) {
@@ -536,4 +587,5 @@ public class MvcHttpRequest implements MvcRequest {
 	public String readLocaleText(String title) {
 		return Application.readLocaleText(getCurrentLocale(), title);
 	}
+
 }

@@ -8,6 +8,7 @@ import tadsuite.mvc.auth.Authentication;
 import tadsuite.mvc.jdbc.Jdbc;
 import tadsuite.mvc.utils.Constants;
 import tadsuite.mvc.utils.Utils;
+import tadsuite.mvc.utils.Utils.FORMAT;
 
 
 /**--MvcControllerBase -------------------------------------------------------------<br>
@@ -258,6 +259,10 @@ public class MvcControllerBase extends MvcBase {
 		return request.readInput(index);
 	}
 	
+	public String readInput(String index, FORMAT format) {
+		return request.readInput(index, format);
+	}
+	
 	public String readInput(String index, int maxLength) {
 		return request.readInput(index, maxLength);
 	}
@@ -270,4 +275,27 @@ public class MvcControllerBase extends MvcBase {
 		return request.readInputArray(index);
 	}
 	
+	public String readId(String index) {
+		return request.readId(index);
+	}
+	
+	public String readLetter(String index) {
+		return request.readLetter(index);
+	}
+	
+	public int readInt(String index, int defaultValue) {
+		return request.readInt(index, defaultValue);
+	}
+
+	public long readLong(String index, long defaultValue) {
+		return request.readLong(index, defaultValue);
+	}
+
+	public float readFloat(String index, float defaultValue) {
+		return request.readFloat(index, defaultValue);
+	}
+
+	public double readDouble(String index, double defaultValue) {
+		return request.readDouble(index, defaultValue);
+	}
 }
