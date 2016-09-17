@@ -22,22 +22,11 @@ import tadsuite.mvc.utils.Utils.FORMAT;
  * ----如果没有调用上述方法，则execute访问默认值RESULT_SUCCESS，系统将加载该类的默认模板（URL相匹配）<br>
  * **/
 public class MvcControllerBase extends MvcBase {
-	public static final String RESULT_SUCCESS=null; //不返回任何值，因为将自动加载默认模板
-	public static final String RESULT_TEXT="TEXT";
-	public static final String RESULT_SCRIPT="SCRIPT";
-	public static final String RESULT_ERROR="ERROR";
-	public static final String RESULT_CSRF="CSRF";
-	public static final String RESULT_XML="XML";
-	public static final String RESULT_JSON="JSON";
-	public static final String RESULT_INFO="INFO";
-	public static final String RESULT_LOGIN="LOGIN";
-	//因为已经进入异步调用，不再支持此项。public static final String RESULT_BYPASS="BYPASS";
-	public static final String RESULT_END="END";
-
+	
 	protected String template=RESULT_SUCCESS;  /**可以给template指定一个值，让它加载一个自定义的模板，如果其值以“/”开头，将直接定位，如果不是“/”开头则先找预定义的ResultMap，找不到则当做一个相对路径来计算**/
 	
-	protected LinkedHashMap<String, Object> rootMap;
-	protected LinkedHashMap<String, String> finalMap; //可以对模板的渲染结果进行替换（键》值）
+	public LinkedHashMap<String, Object> rootMap;
+	public LinkedHashMap<String, String> finalMap; //可以对模板的渲染结果进行替换（键》值）
 	protected ClassMappingResult mappingResult;
 	
 //	public String systemName, systemTitle, defaultLocale, defaultDataSourceName, defaultAuthClientAppId, className, methodName, appPath, basePath, rewriteURL, contextPath, serverPath, requestURI;
