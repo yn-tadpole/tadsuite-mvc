@@ -12,4 +12,8 @@ public class AuthClientConfig {
 	public String get(String title, String defaultValue) {
 		return property.containsKey(title) ? property.get(title).length()>0 ? property.get(title) : defaultValue : defaultValue;
 	}
+	
+	public String get(String title) {
+		return property.containsKey(title) ? property.get(title).length()>0 ? property.get(title) : "" : "";
+	}
 }
