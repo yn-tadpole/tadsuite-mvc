@@ -120,6 +120,8 @@ public class DataSourceManager {
 			if (config.property.containsKey("useGlobalDataSourceStat") && config.property.get("useGlobalDataSourceStat").length()>0) {
 				datasource.setUseGlobalDataSourceStat(config.property.get("useGlobalDataSourceStat").equals("true"));
 			}
+			datasource.setMinEvictableIdleTimeMillis(Utils.parseInt(config.property.get("minEvictableIdleTimeMillis"), 60000));
+			datasource.setMaxEvictableIdleTimeMillis(Utils.parseInt(config.property.get("maxEvictableIdleTimeMillis"), 600000));
 			
 			WallConfig wallConfig=new WallConfig();			
 			String wallFilterRule=config.property.get("wallFilterRule");//readonly/basic/all

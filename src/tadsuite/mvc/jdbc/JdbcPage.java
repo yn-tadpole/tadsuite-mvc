@@ -60,7 +60,6 @@ public class JdbcPage {
 	
 	public Map<String, Object> getMap() {
 		LinkedHashMap<String, Object> map=new LinkedHashMap<>();
-		map.put("dataList", dataList);
 		map.put("totalRows", totalRows);
 		map.put("firstRow", firstRow);
 		map.put("lastRow", lastRow);
@@ -73,6 +72,7 @@ public class JdbcPage {
 		map.put("nextPage", nextPage);
 		map.put("showFirstPage", showFirstPage);
 		map.put("showLastPage", showLastPage);
+		map.put("dataList", dataList);
 		return map;
 	}
 	

@@ -76,6 +76,7 @@ public class MvcRouter {
 			return;
 		}
 		
+		//整个方法中只有此句不在try块，如果出现异常，说明异步处理超时了
 		mvcRequest.setAttribute(Constants.LOGIC_FINISHED_TIME, System.currentTimeMillis());
 		
 		// 读取模板并进行处理
