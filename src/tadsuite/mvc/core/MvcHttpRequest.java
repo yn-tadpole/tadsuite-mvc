@@ -291,7 +291,7 @@ public class MvcHttpRequest implements MvcRequest {
 		case DATETIME:
 			index=index+":datetime";
 			break;
-		case NORMAL:
+		case RAW:
 		default:
 			break;
 		}

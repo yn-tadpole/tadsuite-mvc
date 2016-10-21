@@ -92,6 +92,8 @@
 
 		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
 		<property name="timeBetweenEvictionRunsMillis" value="60000" />
+		<property name="minEvictableIdleTimeMillis" value="60000" />
+		<property name="maxEvictableIdleTimeMillis" value="600000" />
 		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
 		<property name="testWhileIdle" value="true" />
 		<property name="testOnBorrow" value="false" />

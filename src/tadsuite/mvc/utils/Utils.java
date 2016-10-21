@@ -22,7 +22,7 @@ public class Utils {
 	
 	public static final String ID_PATTERN="[0-9a-zA-Z\\-_]{1,36}";
 	
-	public static enum FORMAT {NORMAL, ID, LETTER, HTML, TEXT, CODE, INT, LONG, FLOAT, DOUBLE, NUMBER, DATE, DATETIME}
+	public static enum FORMAT {RAW, ID, LETTER, HTML, TEXT, CODE, INT, LONG, FLOAT, DOUBLE, NUMBER, DATE, DATETIME}
 	
 	public static boolean isId(String str) {
 		return Utils.regi(ID_PATTERN, str);

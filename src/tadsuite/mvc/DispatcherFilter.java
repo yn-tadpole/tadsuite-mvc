@@ -96,6 +96,7 @@ public class DispatcherFilter implements Filter {
 		
         //在子线程中执行业务调用，并由其负责输出响应，主线程退出
         AsyncContext ctx = servletRequest.startAsync();
+        ctx.setTimeout(0); //暂不限制超时
         new Thread(new MvcExecutor(ctx, mappingResult)).start();
 	}
 	
@@ -115,13 +116,15 @@ public class DispatcherFilter implements Filter {
 	    }
 
 	    public void run() {
-			
-	    	MvcRequest mvcRequest=new MvcHttpRequest(request, response);
+	    	long startTime= System.currentTimeMillis();
+			MvcRequest mvcRequest=new MvcHttpRequest(request, response);
 	    	mvcRequest.setClassMappingResult(mappingResult);
+	    	String ip=mvcRequest.getRemoteAddr();
+	    	String fullURL=mvcRequest.getFullURL();
 	    	
 			ThreadContext.push(Utils.uuid()); // Add the fishtag;
 			try {
-				request.setAttribute(Constants.START_TIME, System.currentTimeMillis());
+				request.setAttribute(Constants.START_TIME, startTime);
 				request.setAttribute(Constants.CONTEXT_PATH, request.getContextPath());
 				response.setCharacterEncoding(Constants.ENCODING);
 				if (response.getContentType()==null || response.getContentType().equals("")) {
@@ -130,9 +133,8 @@ public class DispatcherFilter implements Filter {
 				
 				MvcRouter.processRequest(mvcRequest);
 				
-				long startTime= request.getAttribute(Constants.START_TIME)!=null ? (long) request.getAttribute(Constants.START_TIME) : 0;
 				boolean ignoreLogging=request.getAttribute(Constants.INGNORE_STATISTIC)!=null ? (boolean)request.getAttribute(Constants.INGNORE_STATISTIC) : false;
-				if (startTime!=0 && !ignoreLogging) {
+				if (!ignoreLogging) {
 					long authInitTime= request.getAttribute(Constants.AUTH_ININTED_TIME)!=null ? (long) request.getAttribute(Constants.AUTH_ININTED_TIME) : 0;
 					long logicFinishedTime= request.getAttribute(Constants.LOGIC_FINISHED_TIME)!=null ? (long) request.getAttribute(Constants.LOGIC_FINISHED_TIME) : 0;
 					long finishedTime=System.currentTimeMillis();
@@ -145,9 +147,9 @@ public class DispatcherFilter implements Filter {
 					Logger performanceLogger=LogFactory.getLogger(Constants.LOGGER_NAME_PERFORMANCE);
 					ClassMappingResult mapping=mvcRequest.getClassMappingResult();
 					StringBuffer sb=new StringBuffer()
-							.append(Application.getSystemName()).append(" : ")
-							.append(request.getMethod().toString().toLowerCase()).append(" - ").append(mvcRequest.getFullURL())
-							.append(" from ").append(mvcRequest.getRemoteAddr())
+							.append(Application.getSystemName()).append(" :").append(totalTime).append("ms - ")
+							.append(request.getMethod().toString().toLowerCase()).append(" - ").append(fullURL)
+							.append(" from ").append(ip)
 							.append(" mapping to: ").append(mapping!=null ? mapping.clazz.getName() : "null")
 							.append(" , template: ").append(mapping!=null ? mapping.templatePath : "null")
 							.append(", total time ").append(totalTime).append("ms ").append(", init ").append(initTime).append("ms ").append(", logic ").append(logicTime).append("ms ").append(", template ").append(templateTime).append("ms. ")
@@ -162,10 +164,13 @@ public class DispatcherFilter implements Filter {
 				}
 				
 			} catch (Exception e) {
+				//如果出现异常，说明Request异步处理超时，或者中间件级的错误
+				
 				Logger errorLogger=LogFactory.getLogger(Constants.LOGGER_NAME_ERROR);
 				errorLogger.catching(e);
+				long totalTime=System.currentTimeMillis()-startTime;
 				StringBuffer sb=new StringBuffer()
-						.append("** ").append(Application.getSystemName()).append(" - ").append(mvcRequest.getRemoteAddr()).append(", Error for URL: ").append(mvcRequest.getFullURL()).append("\n")
+						.append("** ").append(Application.getSystemName()).append(":").append(totalTime).append("ms - ").append(ip).append(", Error for URL: ").append(fullURL).append("\n")
 						.append(Constants.DASH_LINE).append("\n");
 				errorLogger.warn(sb.toString());
 				try {
