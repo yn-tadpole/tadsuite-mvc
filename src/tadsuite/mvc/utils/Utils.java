@@ -430,7 +430,7 @@ public class Utils {
 			int i=0;
 			buffer.append("{");
 			for (Object key : map.keySet()) {
-				buffer.append(i>0 ? ", " : "").append("\"").append(String.valueOf(key).replace("\"", "\\\"")).append("\" : ");
+				buffer.append(i>0 ? ", " : "").append("\"").append(escapeJsonString(key)).append("\" : ");
 				readJSONItem(((Map) object).get(key), buffer);
 				i++;
 			}
@@ -455,9 +455,13 @@ public class Utils {
 			buffer.append("\"").append(Utils.dateFormat(String.valueOf(object), "yyyy-MM-dd HH:mm", "yyyy-MM-dd HH:mm")).append("\"");
 			return false;
 		} else {
-			buffer.append("\"").append(type.equals("null") ? "" : String.valueOf(object).replace("\"", "\\\"")).append("\"");
+			buffer.append("\"").append(type.equals("null") ? "" : escapeJsonString(object)).append("\"");
 			return false;
 		}
+	}
+	
+	private static String escapeJsonString(Object object) {
+		return String.valueOf(object).replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\n");
 	}
 	
 	public static String xml(Object object) {
