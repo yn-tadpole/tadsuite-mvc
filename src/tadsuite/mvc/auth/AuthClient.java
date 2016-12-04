@@ -15,7 +15,7 @@ public abstract class AuthClient {
 	protected boolean logined=false;
 	protected AuthClientConfig config;
 	
-	protected String loginTemplate;
+	public String loginTemplate;
 	
 	public static AuthClient getInstance(String authAppId, MvcControllerBase controller) {
 		String attrName=Constants.AUTH_CLIENT_ATTR_NAME_PREFIX+authAppId;
