@@ -55,6 +55,7 @@ public final class AuthSsoClient extends AuthClient {
 	protected Jdbc jdbc;
 	private long timer=0;
 	private boolean ignoreValString=false;
+	private boolean compatibilityMode=false;
 	private Logger authLogger=LogFactory.getLogger(Constants.LOGGER_NAME_AUTH);
 	
 	/**
@@ -91,6 +92,7 @@ public final class AuthSsoClient extends AuthClient {
 		bindClientIP=config.get("bindClientIP", "true").equals("true") || config.get("bindClientIP", "true").equals("Y") || config.get("bindClientIP", "true").equals("1");
 		dataSource=config.get("dataSource", "");
 		tablePrefix=config.get("tablePrefix", "");
+		compatibilityMode=config.get("compatibilityMode", "true").equals("true") || config.get("compatibilityMode", "true").equals("Y") || config.get("compatibilityMode", "true").equals("1");
 		
 		stateSessionName="STATE_"+Utils.md5(authPath); //config.authAppId+
 		stateValStringCookieName="S"+Utils.md5("SVSCN"+config.authAppId+authPath).toUpperCase();
@@ -351,6 +353,12 @@ public final class AuthSsoClient extends AuthClient {
 		request.cookieWrite(stateIdCookieName, stateId, cookieSaveTime, cookiePath, cookieDomain, true);
 		request.cookieWrite(stateIdValStringCookieName, buildCookieValString(request, stateId), cookieSaveTime, cookiePath, cookieDomain, true);
 		request.cookieDelete(swapKeyValStringCookieName, cookiePath, cookieDomain);
+		
+		if (compatibilityMode) {//兼容tadsuite v4//这里不能使用修正后的authPath变量
+			request.cookieWrite("k"+Utils.md5(config.get("authPath", "")), stateId, cookieSaveTime, cookiePath, cookieDomain, true);
+			request.cookieWrite("kv"+Utils.md5(config.get("authPath", "")), Utils.getValidationStr(stateId, request.getRemoteAddr(), request.getHeader("User-Agent")), cookieSaveTime, cookiePath, cookieDomain, true);
+		}
+		
 		request.generateTokenMark(true, null);
 		refreshUserState(true);//由于创建时没有刷新用户状态，所以应该刷新一下。
 		logined=true;
