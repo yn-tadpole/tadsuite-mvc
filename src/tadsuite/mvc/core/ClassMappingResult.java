@@ -6,7 +6,6 @@ public class ClassMappingResult {
 	public String rewriteURL;
 	public Class clazz;
 	public String methodName;
-	public String templatePrefix;
-	public String templatePath=null;
+	public String defaultTemplate;
 	public long parseTime;
 }

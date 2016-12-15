@@ -27,6 +27,7 @@ public class MvcHttpRequest implements MvcRequest {
 	private LinkedHashMap<String, Object> rootMap=null;
 	private LinkedHashMap<String, String> finalMap=null;
 	private ClassMappingResult classMappingResult=null;
+	private String templatePath;
 	
 	public MvcHttpRequest(ServletRequest request, ServletResponse response) {
 		this((HttpServletRequest)request, (HttpServletResponse) response);
@@ -72,6 +73,14 @@ public class MvcHttpRequest implements MvcRequest {
 	
 	public void setClassMappingResult(ClassMappingResult classMappingResult) {
 		this.classMappingResult=classMappingResult;
+	}
+	
+	public String getTemplatePath() {
+		return templatePath;
+	}
+	
+	public void setTemplatePath(String templatePath) {
+		this.templatePath=templatePath;
 	}
 
 	public String getScheme() {

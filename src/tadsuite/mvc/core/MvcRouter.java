@@ -21,6 +21,7 @@ public class MvcRouter {
 		long startTime=System.currentTimeMillis();
 		
 		ClassMappingResult mappingResult=mvcRequest.getClassMappingResult();
+		String templatePath=null;
 		try {
 			
 			Object obj = mappingResult.clazz.newInstance();
@@ -48,7 +49,7 @@ public class MvcRouter {
 				throw e;
 			} finally {
 				Method finishActionMethod = mappingResult.clazz.getMethod("finishAction", LinkedHashMap.class);
-				mappingResult.templatePath=(String)finishActionMethod.invoke(obj, mvcRequest.getRootMap());
+				templatePath=(String)finishActionMethod.invoke(obj, mvcRequest.getRootMap());
 			}
 			
 		} catch (ClassNotFoundException e) {
@@ -81,27 +82,27 @@ public class MvcRouter {
 		
 		// 读取模板并进行处理
 		try {
-			if (mappingResult.templatePath == null) {
+			if (templatePath == null) {
 				// Controller返回空值，则使用与URL一致的默认模板
-				mappingResult.templatePath = mappingResult.templatePrefix+mappingResult.clazz.getSimpleName()+Application.getTemplateExtension();
+				templatePath = mappingResult.defaultTemplate;
 				
-			} else if (mappingResult.templatePath.equals(MvcControllerBase.RESULT_JSON)) {
+			} else if (templatePath.equals(MvcControllerBase.RESULT_JSON)) {
 				showJSON(mvcRequest, mappingResult);
 				return;
 				
-			} else if (mappingResult.templatePath.equals(MvcControllerBase.RESULT_XML)) {
+			} else if (templatePath.equals(MvcControllerBase.RESULT_XML)) {
 				showXML(mvcRequest, mappingResult);
 				return;
 				
-			} else if (mappingResult.templatePath.equals(MvcControllerBase.RESULT_TEXT)) {
+			} else if (templatePath.equals(MvcControllerBase.RESULT_TEXT)) {
 				showTEXT(mvcRequest, mappingResult);
 				return;
 				
-			} else if (mappingResult.templatePath.equals(MvcControllerBase.RESULT_SCRIPT)) {
+			} else if (templatePath.equals(MvcControllerBase.RESULT_SCRIPT)) {
 				showSCRIPT(mvcRequest, mappingResult);
 				return;
 				
-			} else if (mappingResult.templatePath.equals(MvcControllerBase.RESULT_END)) {
+			} else if (templatePath.equals(MvcControllerBase.RESULT_END)) {
 				String message=(String)mvcRequest.getRootMap().get("result_message");
 				if (message!=null) {
 					Logger errorLogger=LogFactory.getLogger(Constants.LOGGER_NAME_ERROR);
@@ -109,39 +110,39 @@ public class MvcRouter {
 				}
 				return; // 如果返回结果为需要中断执行，则退出处理过程
 				
-			//异步调用，不再支持，} else if (mappingResult.templatePath.equals(MvcControllerBase.RESULT_BYPASS)) {
+			//异步调用，不再支持，} else if (templatePath.equals(MvcControllerBase.RESULT_BYPASS)) {
 			//return true; // 如果返回结果为服务器动作执行，不经过模板层。
 				
-			} else if (mappingResult.templatePath.equals(MvcControllerBase.RESULT_ERROR)) {
-				mappingResult.templatePath = Application.getErrorResultTemplate();
+			} else if (templatePath.equals(MvcControllerBase.RESULT_ERROR)) {
+				templatePath = Application.getErrorResultTemplate();
 				
-			} else if (mappingResult.templatePath.equals(MvcControllerBase.RESULT_INFO)) {
-				mappingResult.templatePath = Application.getInfoResultTemplate();
+			} else if (templatePath.equals(MvcControllerBase.RESULT_INFO)) {
+				templatePath = Application.getInfoResultTemplate();
 				
-			} else if (mappingResult.templatePath.equals(MvcControllerBase.RESULT_LOGIN)) {
-				mappingResult.templatePath=Application.getLoginResultTemplate();
+			} else if (templatePath.equals(MvcControllerBase.RESULT_LOGIN)) {
+				templatePath=Application.getLoginResultTemplate();
 				
-			} else if (mappingResult.templatePath.equals(MvcControllerBase.RESULT_CSRF)) {
-				mappingResult.templatePath = Application.getCsrfResultTemplate();
+			} else if (templatePath.equals(MvcControllerBase.RESULT_CSRF)) {
+				templatePath = Application.getCsrfResultTemplate();
 				
-			} else if (!mappingResult.templatePath.startsWith("/")) {// 如果Controller的返回值以“/”开头，则不做处理直接加载该模板
+			} else if (!templatePath.startsWith("/")) {// 如果Controller的返回值以“/”开头，则不做处理直接加载该模板
 				//否则按Controller所在路径计算模板路径
-				//mappingResult.templatePath = routeResult.get("templatePrefix")+(routeResult.get("templatePrefix").equals("") || routeResult.get("templatePrefix").endsWith("/") ? "" : "/")+ mappingResult.templatePath;
-				//mappingResult.templatePath = routeResult.get("templatePath").substring(0, routeResult.get("templatePath").lastIndexOf("/")+1)+mappingResult.templatePath;
-				mappingResult.templatePath=mappingResult.templatePrefix+mappingResult.templatePath;
+				//templatePath = routeResult.get("templatePrefix")+(routeResult.get("templatePrefix").equals("") || routeResult.get("templatePrefix").endsWith("/") ? "" : "/")+ templatePath;
+				//templatePath = routeResult.get("templatePath").substring(0, routeResult.get("templatePath").lastIndexOf("/")+1)+templatePath;
+				templatePath=mappingResult.defaultTemplate.substring(0, mappingResult.defaultTemplate.lastIndexOf("/")+1)+templatePath;
 			}
 			
-			if (mappingResult.templatePath.endsWith("/") || mappingResult.templatePath.endsWith("/" + Application.getTemplateExtension())) { //修正默认类的模板
-				mappingResult.templatePath = mappingResult.templatePath.substring(0, mappingResult.templatePath.lastIndexOf("/") + 1) + Application.getDefaultClassName() + Application.getTemplateExtension();
+			if (templatePath.endsWith("/") || templatePath.endsWith("/" + Application.getTemplateExtension())) { //修正默认类的模板
+				templatePath = templatePath.substring(0, templatePath.lastIndexOf("/") + 1) + Application.getDefaultClassName() + Application.getTemplateExtension();
 			}
 			
 			Template template=null;
 			if (Application.isUseVersionTemplate()) {
-				String versionTplPath = mappingResult.templatePath.substring(0, mappingResult.templatePath.length() - Application.getTemplateExtension().length())+ Application.getTemplateVersionMark() + Application.getTemplateExtension();
+				String versionTplPath = templatePath.substring(0, templatePath.length() - Application.getTemplateExtension().length())+ Application.getTemplateVersionMark() + Application.getTemplateExtension();
 				try {
 					//errorLogger.warn("Load Template:"+versionTplPath);
 					template = Application.getTemplateConfig().getTemplate(versionTplPath);
-					mappingResult.templatePath=versionTplPath;
+					templatePath=versionTplPath;
 				} catch (IOException e) {
 					/* DON'T REMOVE_METHOD_NAME_HERE!!
 					int k=versionTplPath.indexOf("_", versionTplPath.lastIndexOf("/")+1);
@@ -150,31 +151,31 @@ public class MvcRouter {
 						try {
 							//errorLogger.warn("Load Template:"+defaultVersionTplPath);
 							template = templateConfig.getTemplate(defaultVersionTplPath);
-							mappingResult.templatePath=defaultVersionTplPath;
+							templatePath=defaultVersionTplPath;
 						} catch (IOException e2) {}						
 					}*/
 				}
 			}
 			if (template==null) {
 				try {
-					//errorLogger.warn("Load Template:"+mappingResult.templatePath);
-					template = Application.getTemplateConfig().getTemplate(mappingResult.templatePath);
+					//errorLogger.warn("Load Template:"+templatePath);
+					template = Application.getTemplateConfig().getTemplate(templatePath);
 				} catch (IOException e) {
 					/* DON'T REMOVE_METHOD_NAME_HERE!!
-					int k=mappingResult.templatePath.indexOf("_", mappingResult.templatePath.lastIndexOf("/")+1);
+					int k=templatePath.indexOf("_", templatePath.lastIndexOf("/")+1);
 					if (k!=-1) {
-						String defaultTplPath=mappingResult.templatePath.substring(0, k)+templateExtension; //remove method name;
+						String defaultTplPath=templatePath.substring(0, k)+templateExtension; //remove method name;
 						try {
 							//errorLogger.warn("Load Template:"+defaultTplPath);
 							template = templateConfig.getTemplate(defaultTplPath);
-							mappingResult.templatePath=defaultTplPath;
+							templatePath=defaultTplPath;
 						} catch (IOException e2) {}	
 					}*/
 				}
 			}
 			if (template==null) {
 				Logger errorLogger=LogFactory.getLogger(Constants.LOGGER_NAME_ERROR);
-				errorLogger.warn("** Template Not Exists({})", mappingResult.templatePath);
+				errorLogger.warn("** Template Not Exists({})", templatePath);
 				return;
 			}
 			String currentLocale=mvcRequest.getCurrentLocale();
@@ -201,17 +202,17 @@ public class MvcRouter {
 			
 		} catch (TemplateException e) {
 			Logger errorLogger=LogFactory.getLogger(Constants.LOGGER_NAME_ERROR);
-			errorLogger.warn("** Parse Template Failture ({}). ", mappingResult.templatePath);
+			errorLogger.warn("** Parse Template Failture ({}). ", templatePath);
 			errorLogger.catching(e);
 			
 		} catch (IOException e) {
 			Logger errorLogger=LogFactory.getLogger(Constants.LOGGER_NAME_ERROR);
-			errorLogger.warn("** Template IO Error ({}).", mappingResult.templatePath);
+			errorLogger.warn("** Template IO Error ({}).", templatePath);
 			errorLogger.catching(e);
 			
 		} catch (Exception e) {
 			Logger errorLogger=LogFactory.getLogger(Constants.LOGGER_NAME_ERROR);
-			errorLogger.warn("** Template Process Failture({}).", mappingResult.templatePath);
+			errorLogger.warn("** Template Process Failture({}).", templatePath);
 			errorLogger.catching(e);
 		}
 	}

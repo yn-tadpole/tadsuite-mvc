@@ -151,7 +151,7 @@ public class DispatcherFilter implements Filter {
 							.append(request.getMethod().toString().toLowerCase()).append(" - ").append(fullURL)
 							.append(" from ").append(ip)
 							.append(" mapping to: ").append(mapping!=null ? mapping.clazz.getName() : "null")
-							.append(" , template: ").append(mapping!=null ? mapping.templatePath : "null")
+							.append(" , template: ").append(mvcRequest.getTemplatePath())
 							.append(", total time ").append(totalTime).append("ms ").append(", init ").append(initTime).append("ms ").append(", logic ").append(logicTime).append("ms ").append(", template ").append(templateTime).append("ms. ")
 							.append("\n").append(Constants.DASH_LINE);
 					if (totalTime>6000) {

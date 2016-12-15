@@ -81,7 +81,7 @@ public class ClassMapper {
 		String className=clazz.toString();
 		String basePath=path.substring(0, path.lastIndexOf("/")+1);
 		String rewriteURL=path.substring(path.lastIndexOf("/")+1);
-		return loadClass(rule, url, basePath, rewriteURL, className, methodName);
+		return mappingClass(rule, url, basePath, rewriteURL, className, methodName);
 	}
 	
 	/**
@@ -90,7 +90,7 @@ public class ClassMapper {
 	 * @param className
 	 * @param methodName
 	 */
-	private static ClassMappingResult loadClass(ClassMappingRule rule, String url, String basePath, String rewriteURL, String className, String methodName) {
+	private static ClassMappingResult mappingClass(ClassMappingRule rule, String url, String basePath, String rewriteURL, String className, String methodName) {
 		if (className.length()>rule.classPackage.length() && Utils.regi("^[a-z_]{1}([a-z_0-9]{0,}[\\.]){1,}[A-Z]{1}[a-z0-9A-Z_]{0,}$", className)) {
 			boolean isRuterClass=className.endsWith(Application.getRouterClassName());
 			try {
@@ -101,7 +101,7 @@ public class ClassMapper {
 				mappingItem.methodName=methodName;
 				mappingItem.basePath=rule.urlPrefix+basePath;
 				mappingItem.rewriteURL=isRuterClass ? rewriteURL : "";
-				mappingItem.templatePrefix=rule.templatePrefix!=null && rule.templatePrefix.length()>1 ? rule.templatePrefix : mappingItem.basePath; //templatePrefix默认值是“/”，如果是“/”或空，则应该换为basePath
+				mappingItem.defaultTemplate=(rule.templatePrefix!=null && rule.templatePrefix.length()>1 ? rule.templatePrefix : rule.urlPrefix)+basePath+clazz.getSimpleName()+Application.getTemplateExtension(); //templatePrefix默认值是“/”，如果是“/”或空，则应该换为basePath
 				mappingItem.parseTime=Utils.now().getTime();
 				CACHE_MAP.put(url, mappingItem);
 				return mappingItem;
@@ -111,7 +111,7 @@ public class ClassMapper {
 				if (!isRuterClass) {//如果之前加载的不是路由类，则切换为路由类
 					className=className.substring(0, className.lastIndexOf(".")+1)+Application.getRouterClassName();
 					methodName=Application.getDefaultMethodName();
-					return loadClass(rule, url, basePath, rewriteURL, className, methodName);
+					return mappingClass(rule, url, basePath, rewriteURL, className, methodName);
 					
 				} else {//否则尝试加载上级路由类
 					//递归计算
@@ -121,7 +121,7 @@ public class ClassMapper {
 						String parentRouter=parentPackageName+"."+Application.getRouterClassName();
 						String parentPath=basePath.length()>0 ? basePath.substring(0, basePath.substring(0, basePath.length()-1).lastIndexOf("/")+1) : "";
 						String parentRewriteURL=basePath.substring(parentPath.length())+rewriteURL;
-						return loadClass(rule, url, parentPath, parentRewriteURL, parentRouter, Application.getDefaultMethodName());
+						return mappingClass(rule, url, parentPath, parentRewriteURL, parentRouter, Application.getDefaultMethodName());
 					} else {
 						return null;
 					}
