@@ -11,7 +11,7 @@ public class AuthedControllerBase extends MvcControllerBase {
 		//auth的初始化放在了MvcControllerBase的init方法中
 		//不放在本类的init方法中，是为也不让登录因错误的类继承关系而失效(例如：本应继承AuthedControllerBase类，却错误地继承MvcControllerBase)。
 		if (auth==null) {
-			setMvcView(RESULT_END, "AuthClient configuration is lost.");
+			setMvcView(RESULT_TEXT, "AuthClient configuration is lost.");
 			return;
 		}
 		String authPath=auth.getAuthPath();
