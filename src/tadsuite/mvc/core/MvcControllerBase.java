@@ -36,6 +36,7 @@ public class MvcControllerBase extends MvcBase {
 	public MvcRequest request;
 	public Jdbc jdbc; //default data source
 	public AuthUserState auth=null;
+	public LinkedHashMap<String, AuthUserState> authMap=new LinkedHashMap<>();
 	
 	private boolean controllerInited=false, controllerCleaned=false, controllerExecuting=false, resultSetted=false, bindSystemVariables=true;
 	
@@ -51,6 +52,7 @@ public class MvcControllerBase extends MvcBase {
 		}
 		
 		//要放置在这里，而不放置在startAction中，是为了让子类可以通过重写而实现在登录页显示更多内容
+		//不放在AuthedControllerBase类的init方法中，是为也不让登录被错误的类继承关系而失效。
 		Authentication.init(this);
 		request.setAttribute(Constants.AUTH_ININTED_TIME, System.currentTimeMillis());
 		
@@ -173,9 +175,9 @@ public class MvcControllerBase extends MvcBase {
 		return template; //如果没有调用过setMvcView方法，此处返回的是null，将会加载默认模板
 	}
 	
-	public final void cacheJDBC(Jdbc jdbc) {
-		//jdbcPool.add(jdbc);
-	}
+	//public final void cacheJDBC(Jdbc jdbc) {
+	//	//jdbcPool.add(jdbc);
+	//}
 	
 	/**此方法设置一个返回结果
 	 * 只应在CotrollerBase的子类方法中<strong>一次性</strong>调用此方法，调用后应结束执行过程。

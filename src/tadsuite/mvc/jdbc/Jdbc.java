@@ -101,6 +101,7 @@ public class Jdbc {
 		return _query(-1, 1, sql, null, args);
 	}
 
+	@SuppressWarnings("unused")
 	@Deprecated
 	/**
 	 * 不能同时使用JdbcParams params和 Object... args参数（但此方法必须定义，否则将会错误地调用query(String sql, Object... args)）
@@ -125,6 +126,7 @@ public class Jdbc {
 		return _query(maxRows, 1, sql, null, args);
 	}
 	
+	@SuppressWarnings("unused")
 	@Deprecated
 	/**
 	 * 不能同时使用JdbcParams params和 Object... args参数（但此方法必须定义，否则将会错误地调用query(int maxRows, String sql, Object... args)）
@@ -149,6 +151,7 @@ public class Jdbc {
 		return _query(pgSize, pgCurrent, sql, null, args);
 	}
 	
+	@SuppressWarnings("unused")
 	@Deprecated
 	/**
 	 * 不能同时使用JdbcParams params和 Object... args参数（但此方法必须定义，否则将会错误地调用query(int pgSize, int pgCurrent, String sql, Object... args)

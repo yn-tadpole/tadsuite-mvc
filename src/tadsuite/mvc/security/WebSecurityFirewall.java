@@ -186,6 +186,7 @@ public class WebSecurityFirewall {
 		return sb.toString();
 	}
 	
+	@SuppressWarnings("unused")
 	public final static void checkSignature(MvcRequest request) {
 		//TODO checkSignature
 	}

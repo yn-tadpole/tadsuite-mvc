@@ -1,38 +1,24 @@
 package tadsuite.mvc.core;
 
-import java.util.LinkedHashMap;
-
-import tadsuite.mvc.Application;
-import tadsuite.mvc.auth.AuthClient;
-import tadsuite.mvc.auth.AuthUserState;
 import tadsuite.mvc.core.MvcControllerBase;
 
 public class AuthedControllerBase extends MvcControllerBase {
 
-	protected AuthUserState auth;
 	
 	@Override
 	protected void init() {
 		super.init();
-		
-		AuthClient authClient=AuthClient.getInstance(Application.getDefaultAuthClientAppId(), this);
-		
-		authClient.checkLogin();
-		auth=authClient.getUserState();
-		
-		LinkedHashMap<String, Object> map=new LinkedHashMap<>();
-		map.put("name", auth.getName());
-		map.put("stateId", auth.getStateId());
-		map.put("userId", auth.getUserId());
-		map.put("dpmId", auth.getDpmId());
-		map.put("dpmName", auth.getDpmName());
-		map.put("loginTime", auth.getLoginTime());
-		map.put("loginIp", auth.getLoginIP());
-		map.put("loginCount", auth.getLoginCount());
-		map.put("prevLoginIp", auth.getPrevLoginIP());
-		map.put("prevLoginTime", auth.getPrevLoginTime());
-		rootMap.put("auth", map);
-		rootMap.put("auth_path", auth.getAuthPath());
+		//auth的初始化放在了MvcControllerBase的init方法中
+		//不放在本类的init方法中，是为也不让登录因错误的类继承关系而失效(例如：本应继承AuthedControllerBase类，却错误地继承MvcControllerBase)。
+		if (auth==null) {
+			setMvcView(RESULT_END, "AuthClient configuration is lost.");
+			return;
+		}
+		String authPath=auth.getAuthPath();
+		int index=auth.getAuthPath().lastIndexOf("/");
+		rootMap.put("auth", auth.getAuthInfoMap());
+		rootMap.put("auth_path", authPath);
+		rootMap.put("auth_path_base", index!=-1 ? authPath.substring(0, index)  : authPath);
 	}
 
 }

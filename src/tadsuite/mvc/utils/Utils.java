@@ -25,7 +25,7 @@ public class Utils {
 	public static enum FORMAT {RAW, ID, LETTER, HTML, TEXT, CODE, INT, LONG, FLOAT, DOUBLE, NUMBER, DATE, DATETIME}
 	
 	public static boolean isId(String str) {
-		return Utils.regi(ID_PATTERN, str);
+		return !str.equals("_") && Utils.regi(ID_PATTERN, str);
 	}
 	/**
 	 * 生成16位数字，前13位为当前时间毫秒值，后3位为随机数

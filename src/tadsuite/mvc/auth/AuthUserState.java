@@ -484,4 +484,20 @@ public class AuthUserState {
 	public Object getData(String key) {
 		return userDataMap.containsKey(key) ? userDataMap.get(key) : null;
 	}
+	
+	public LinkedHashMap<String, Object> getAuthInfoMap() {
+		LinkedHashMap<String, Object> map=new LinkedHashMap<>();
+		map.put("name", getName());
+		map.put("stateId", getStateId());
+		map.put("userId", getUserId());
+		map.put("dpmId", getDpmId());
+		map.put("dpmName", getDpmName());
+		map.put("loginTime", getLoginTime());
+		map.put("loginIp", getLoginIP());
+		map.put("loginCount", getLoginCount());
+		map.put("prevLoginIp", getPrevLoginIP());
+		map.put("prevLoginTime", getPrevLoginTime());
+		map.put("authPath", getAuthPath());
+		return map;
+	}
 }

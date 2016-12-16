@@ -1021,12 +1021,12 @@ public class JdbcExecutor {
 	
 	public JdbcExecutor setArgArray(Object... args) {
 		for (int index=0; index<args.length; index++) {
-			setCell(args[index], index, args[index]);
+			setCell(args[index], index);
 		}
 		return this;
 	}
 	
-	public <T> void setCell(T t , int index, Object value){ 
+	public <T> void setCell(T t , int index){ 
 		if (t instanceof String) {
 			setString(index+1, (String)t);
 		} else if (t instanceof Long) {
@@ -1903,12 +1903,10 @@ public class JdbcExecutor {
 		return pgCurrent;
 	}
 
-	@Deprecated
 	public String buildPgString(String urlStr) {
 		return buildPgString(10, urlStr);
 	}
 
-	@Deprecated
 	public String buildPgString(int style, String urlStr) {
 		StringBuilder sb = new StringBuilder();
 		if (rowTotal < 1) {
@@ -2055,7 +2053,7 @@ public class JdbcExecutor {
 	}
 	
 	public String parseSqlForPage(String sql, int pageSize, int pageCurrent) {
-		return parseSqlForPage(sql, dbType, pageSize, pgCurrent);
+		return parseSqlForPage(sql, dbType, pageSize, pageCurrent);
 	}
 	
 	/**
