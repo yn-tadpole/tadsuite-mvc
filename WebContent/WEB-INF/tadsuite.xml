@@ -15,15 +15,7 @@
 	</ForbiddenURL>
 
 
-	<!-- 资源文件的路径，指定前辍的URL不再被MVC路由处理 ，注意：下面的防火墙配置对资源文件无效 -->
-	<ResourcesURL>
-		<Rule prefix="/_tadsuite/"></Rule>
-		<Rule prefix="/_resources/"></Rule>
-		<Rule prefix="/druid_stat/"></Rule>
-	</ResourcesURL>
-
-
-
+	
 	<!-- WEB安装防火墙设置（防火墙配置对资源文件也有效） -->
 	<!--
 		参数： parameterValueMaxLength用于限制输入参数的长度（默认为3000，用parameter:format方法读取指定格式时不受限制）
@@ -43,6 +35,16 @@
 		<Rule prefix="/mangaer/" suffix="submit" checkOptions="R,T"></Rule>
 		<Rule suffix="submit" checkOptions="R,P,T"></Rule>
    </WebSecurity>
+   
+   
+<!-- 资源文件的路径，指定前辍的URL不再被MVC路由处理  -->
+	<ResourcesURL>
+		<Rule prefix="/_tadsuite/"></Rule>
+		<Rule prefix="/_resources/"></Rule>
+		<Rule prefix="/druid_stat/"></Rule>
+	</ResourcesURL>
+
+
 
 	<!-- 控制器配置
 	参数：defaultClass默认类，routerClass默认路由器，默认方法defaultMethod

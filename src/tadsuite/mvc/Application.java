@@ -281,7 +281,7 @@ public class Application {
 			String prefix=route.getAttribute("prefix");
 			String classPackage=route.getAttribute("package");
 			String templatePrefix=route.getAttribute("templatePrefix");
-			if (prefix!=null && prefix.length()>0 && classPackage!=null && classPackage.length()>0) {
+			if (prefix!=null && classPackage!=null && classPackage.length()>0) {
 				prefix=(prefix.startsWith("/") ? "" : "/")+prefix+(prefix.endsWith("/") ? "" : "/");
 				if (classPackage.endsWith("*")  || classPackage.endsWith(".")) {//去除“.”或者“.*”
 					classPackage=classPackage.substring(0, classPackage.lastIndexOf("."));

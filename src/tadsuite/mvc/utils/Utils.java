@@ -172,7 +172,7 @@ public class Utils {
 		return sb.toString().split(String.valueOf(seperator));
 	}
 	
-	
+
 	public static String htmlEncode(String txt) {
 		StringBuilder out = new StringBuilder();
 	    for(int i=0, j=txt.length(); i<j; i++) {
@@ -192,6 +192,10 @@ public class Utils {
 	        }
 	    }
 	    return out.toString();
+	}
+
+	public static String htmlDecode(String txt) {
+		return txt.replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"");
 	}
 	
 	public static String htmlEncodeWithBr(String txt) {

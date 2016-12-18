@@ -62,9 +62,6 @@ public class DispatcherFilter implements Filter {
 			response.sendError(404);
 			return;
 			
-		} else if (Application.isResourceURL(url)) {
-			chain.doFilter(request, response);
-			return;
 		}
 		
 		request.setCharacterEncoding(Constants.ENCODING);
@@ -82,11 +79,15 @@ public class DispatcherFilter implements Filter {
 			return;
 		}
 		
+		if (Application.isResourceURL(url)) {
+			chain.doFilter(request, response);
+			return;
+		}
 		
 		ClassMappingResult mappingResult=ClassMapper.parse(url);
 		if (mappingResult==null) {
 			String fileName=url.substring(url.lastIndexOf("/")+1);
-			if (!url.endsWith("/") && fileName.indexOf(".")==-1 && fileName.indexOf("_")==-1) {
+			if (fileName.length()>0 && fileName.substring(0, 1).equals(fileName.substring(0,1).toLowerCase()) && fileName.indexOf(".")==-1 && fileName.indexOf("_")==-1) {
 				response.sendRedirect(request.getContextPath()+url+"/");
 				return;
 			}
