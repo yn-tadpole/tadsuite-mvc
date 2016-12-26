@@ -167,6 +167,11 @@ public final class AuthSsoClient extends AuthClient {
 			if (stateIdValString!=null && stateIdValString.equals(buildCookieValString(request, stateId))) {
 				generateSsoUserState(stateId, !canKeepState);
 			}
+			if (controller.unsafeAuthCheck && controller.unsafeAuthStateId!=null && controller.unsafeAuthStateIdValKey!=null) {
+				if (controller.unsafeAuthStateIdValKey.equals(buildUnsafeValString(controller.request, controller.unsafeAuthStateId))) {
+					generateSsoUserState(controller.unsafeAuthStateId, false);
+				}
+			}
 			if (!logined) {//checkSwapKey会检查swapKey创建state && crossDomain
 				checkSsoSwapKey();
 			}

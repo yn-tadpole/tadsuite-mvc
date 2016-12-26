@@ -62,12 +62,18 @@ public abstract class AuthClient {
 				: Utils.getValidationStr(stateId, sample, request.getSessionId(), request.getHeader("User-Agent"));
 		return str2uuid(value);
 	}
-	
+
 	public static String buildCookieValString(MvcRequest request, String stateId) {//对于Cookie中的stateId进行验证应加IP参数，其它情况不加IP参数//注意：AuthClient中的版本应与AuthServer中的版本一致
 		String sample=valStringSample!=null && valStringSample.length()>0 ? valStringSample : valStringSampleDefault;		
 		return str2uuid(Utils.getValidationStr(stateId, sample, request.getRemoteAddr(), request.getHeader("User-Agent"))); //该项会导致负载均衡时会话丢失, request.getServerName()
 	}
-	
+
+	public static String buildUnsafeValString(MvcRequest request, String stateId) {//对于URL中的stateId进行验证
+		String sample=valStringSample!=null && valStringSample.length()>0 ? valStringSample : valStringSampleDefault;
+		//long seed=Utils.now().getTime();
+		return str2uuid(Utils.getValidationStr(stateId, sample, request.getRemoteAddr()));
+	}
+
 	//让字符串更像一个UUID
 	private static String str2uuid(String str) {
 		StringBuffer value=new StringBuffer(Utils.md5(str)); 

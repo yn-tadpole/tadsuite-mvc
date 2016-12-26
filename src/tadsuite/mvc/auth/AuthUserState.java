@@ -478,6 +478,7 @@ public class AuthUserState {
 	public String getStateId() {
 		return stateId;
 	}
+	
 	public String getConfig(String key) {
 		return config.get(key, "");
 	}

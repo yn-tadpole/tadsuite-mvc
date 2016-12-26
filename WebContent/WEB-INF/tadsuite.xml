@@ -161,6 +161,7 @@
   	<SystemTitle>XXXX</SystemTitle>
   	
   	<debugMode>true</debugMode>
+  	<useProxy>false</useProxy>
   	
   	<!-- 一个随机字符串，用于服务器端HASH一些验证字符串，每个应用应设置不同，以增加伪造难度 -->
   	<ValStringEncryptSample>8ds632982-;lkjoi0-43098</ValStringEncryptSample>
