@@ -32,7 +32,7 @@ public class MvcControllerBase extends MvcBase {
 //	public String systemName, systemTitle, defaultLocale, defaultDataSourceName, defaultAuthClientAppId, className, methodName, appPath, basePath, rewriteURL, contextPath, serverPath, requestURI;
 	
 	/**Performance Log should been ignored when file downloads and etc.*/
-	public boolean ignorePerformanceStatics=false, allowOutputFormat=false;
+	public boolean ignoreAuthCheck=false, ignorePerformanceStatics=false, allowOutputFormat=false;
 	public MvcRequest request;
 	public Jdbc jdbc; //default data source
 	public AuthUserState auth=null;
@@ -51,10 +51,12 @@ public class MvcControllerBase extends MvcBase {
 			return;
 		}
 		
-		//要放置在这里，而不放置在startAction中，是为了让子类可以通过重写而实现在登录页显示更多内容
-		//不放在AuthedControllerBase类的init方法中，是为也不让登录被错误的类继承关系而失效。
-		Authentication.init(this);
-		request.setAttribute(Constants.AUTH_ININTED_TIME, System.currentTimeMillis());
+		if (ignoreAuthCheck) {
+			//要放置在这里，而不放置在startAction中，是为了让子类可以通过重写而实现在登录页显示更多内容
+			//不放在AuthedControllerBase类的init方法中，是为也不让登录被错误的类继承关系而失效。
+			Authentication.init(this);
+			request.setAttribute(Constants.AUTH_ININTED_TIME, System.currentTimeMillis());
+		}
 		
 		this.controllerInited=true;//此行是必须的
 	}
@@ -137,6 +139,7 @@ public class MvcControllerBase extends MvcBase {
 				rootMap.put("request_uri", requestURI);
 				rootMap.put("server_path", serverPath);
 				rootMap.put("context_path", contextPath);
+				rootMap.put("base_path", mappingResult.basePath);
 				rootMap.put("system_name", Application.getSystemName());
 				rootMap.put("system_title", Application.getSystemTitle());
 				rootMap.put("debugMode", Application.isDebugMode());

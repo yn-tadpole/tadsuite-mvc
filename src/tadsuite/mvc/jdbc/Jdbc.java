@@ -9,9 +9,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import javax.sql.DataSource;
 
-import tadsuite.mvc.logging.LogFactory;
-import tadsuite.mvc.logging.Logger;
-import tadsuite.mvc.utils.Constants;
 import tadsuite.mvc.utils.NameMapper;
 import tadsuite.mvc.utils.NameMapper.MAP_POLICY;
 
@@ -28,7 +25,7 @@ public class Jdbc {
 	public static enum RESULT_TYPE {
 		SINGLE_CELL_OBJ, SINGLE_ROW_MAP, SINGLE_COLUMN_ArrayList, ArrayList, PAGED_ArrayList;
 	}
-	public Logger jdbcLogger=LogFactory.getLogger(Constants.LOGGER_NAME_JDBC);
+	//public Logger jdbcLogger=LogFactory.getLogger(Constants.LOGGER_NAME_JDBC);
 	public JdbcExecutor executor;
 	
 	public Jdbc() {

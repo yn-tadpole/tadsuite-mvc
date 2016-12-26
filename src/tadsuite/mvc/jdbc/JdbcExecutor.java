@@ -73,6 +73,7 @@ public class JdbcExecutor {
 	private HashMap<Integer, Object> bindValueMap=new HashMap<Integer, Object>();
 	private HashMap<Integer, Object> bindSQLValueMap=new HashMap<Integer, Object>();
 	private Logger JdbcExecutorLogger;
+	public boolean ignoreLogging=false;
 	
 	private ArrayList<JdbcExecutor> chlidrenList=new ArrayList<>();
 
@@ -657,17 +658,19 @@ public class JdbcExecutor {
 		startTime=System.currentTimeMillis();
 	}
 	private void endTiming() {
-		long usedTime=System.currentTimeMillis()-startTime;
-		if (usedTime>10000) {
-			JdbcExecutorLogger.warn("JdbcExecutor-slow10000:{}ms - {}", usedTime, currentSQLString());
-		} else if (usedTime>6000) {
-			JdbcExecutorLogger.warn("JdbcExecutor-slow6000:{}ms - {}", usedTime, currentSQLString());
-		} else if (usedTime>3000) {
-			JdbcExecutorLogger.warn("JdbcExecutor-slow3000:{}ms - {}", usedTime, currentSQLString());
-		} else if (usedTime>1000) {
-			JdbcExecutorLogger.info("JdbcExecutor-slow1000:{}ms - {}", usedTime, currentSQLString());
-		} else if (JdbcExecutorLogger.isDebugEnabled()) {
-			JdbcExecutorLogger.debug("JdbcExecutor:{}ms - {}", usedTime, currentSQLString());
+		if (!ignoreLogging) {
+			long usedTime=System.currentTimeMillis()-startTime;
+			if (usedTime>10000) {
+				JdbcExecutorLogger.warn("JdbcExecutor-slow10000:{}ms - {}", usedTime, currentSQLString());
+			} else if (usedTime>6000) {
+				JdbcExecutorLogger.warn("JdbcExecutor-slow6000:{}ms - {}", usedTime, currentSQLString());
+			} else if (usedTime>3000) {
+				JdbcExecutorLogger.warn("JdbcExecutor-slow3000:{}ms - {}", usedTime, currentSQLString());
+			} else if (usedTime>1000) {
+				JdbcExecutorLogger.info("JdbcExecutor-slow1000:{}ms - {}", usedTime, currentSQLString());
+			} else if (JdbcExecutorLogger.isDebugEnabled()) {
+				JdbcExecutorLogger.debug("JdbcExecutor:{}ms - {}", usedTime, currentSQLString());
+			}
 		}
 	}
 	
