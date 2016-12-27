@@ -107,6 +107,10 @@ public class JdbcExecutor {
 		return newObject;
 	}
 	
+	public void attachChildExecutor(JdbcExecutor executor) {
+		chlidrenList.add(executor);
+	}
+	
 	/**
 	 * 指定数据源，再创建一个对象，并与当前对象建立关联（当前对象关闭时将自动关闭）
 	 * 将使用不同的Connection及Statement等对象

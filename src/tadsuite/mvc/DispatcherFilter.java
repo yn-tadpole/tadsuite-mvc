@@ -183,7 +183,11 @@ public class DispatcherFilter implements Filter {
 			} finally {
 				ThreadContext.pop();
 			}
-			context.complete();
+			try {
+				context.complete();
+			} catch (Exception e) {
+				
+			}
 		}
 	}
 }
