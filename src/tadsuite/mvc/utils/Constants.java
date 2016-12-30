@@ -4,7 +4,7 @@ public class Constants {
 	public static final String LOGGER_NAME_AUTH="tadAppCloud.Logger.Auth";
 	public static final String LOGGER_NAME_LOGIC_MGR="tadAppCloud.Logger.Logic.Mangager";
 	public static final String LOGGER_NAME_LOGIC_APP="tadAppCloud.Logger.Logic.App";
-	public static final String LOGGER_NAME_JDBC="tadAppCloud.Logger.JDBC";
+	public static final String LOGGER_NAME_Jdbc="tadAppCloud.Logger.Jdbc";
 	public static final String LOGGER_NAME_ERROR="tadAppCloud.Logger.Error";
 	public static final String LOGGER_NAME_SECURITY="tadAppCloud.Logger.Security";
 	public static final String LOGGER_NAME_PERFORMANCE="tadAppCloud.Logger.Performance";

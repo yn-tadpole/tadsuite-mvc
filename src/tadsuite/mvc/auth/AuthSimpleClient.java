@@ -427,8 +427,10 @@ public final class AuthSimpleClient extends AuthClient {
 	}
 	
 	private String generateUserState(LinkedHashMap<String, String> colMap, Map<String, Object> userDataMap, String stateId, String token, String username, boolean isVirtualUser, boolean isRecovery) {
-		state=new AuthUserState(config, "", stateId, (String) userDataMap.get("id")
-				, (String) userDataMap.get("name"), "_", "", request.getRemoteAddr()
+		state=new AuthUserState(config, "", stateId
+				, (String) userDataMap.get("id"), (String) userDataMap.get("name")
+				, colMap.containsKey("dpm_id") ? (String) userDataMap.get("dpm_id") : "_", colMap.containsKey("dpm_name") ? (String) userDataMap.get("dpm_name") : ""
+				, request.getRemoteAddr()
 				, colMap.containsKey("login_count") ? (Integer) userDataMap.get("login_count") : -1
 				, Utils.now(), colMap.containsKey("login_time") ? (Date) userDataMap.get("login_time") : null
 				, colMap.containsKey("login_ip") ? (String) userDataMap.get("login_ip") : ""

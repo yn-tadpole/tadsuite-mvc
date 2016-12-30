@@ -50,6 +50,7 @@ public class Application {
 	private static String defaultDataSourceName, defaultAuthClientAppId, configReadResultMessage;
 
 	private static ArrayList<String> forbiddenUrlList = new ArrayList<String>();
+	private static ArrayList<String> resourcePrefixList = new ArrayList<String>();
 	private static ArrayList<String> resourceUrlList = new ArrayList<String>();
 	private static LinkedHashMap<String, ClassMappingRule> controllerMap = new LinkedHashMap<String, ClassMappingRule>();
 	private static LinkedHashMap<String, DataSourceConfig> dataSourceMap = new LinkedHashMap<String, DataSourceConfig>();
@@ -96,7 +97,7 @@ public class Application {
 		System.setProperty("logger_name_logic_mgr", Constants.LOGGER_NAME_LOGIC_MGR);
 		System.setProperty("logger_name_logic_app", Constants.LOGGER_NAME_LOGIC_APP);
 		System.setProperty("logger_name_error", Constants.LOGGER_NAME_ERROR);
-		System.setProperty("logger_name_jdbc", Constants.LOGGER_NAME_JDBC);
+		System.setProperty("logger_name_jdbc", Constants.LOGGER_NAME_Jdbc);
 		System.setProperty("logger_name_performance", Constants.LOGGER_NAME_PERFORMANCE);
 		System.setProperty("logger_name_security", Constants.LOGGER_NAME_SECURITY);
 		
@@ -154,17 +155,23 @@ public class Application {
 			forbiddenUrlList=newForbiddenList;
 			
 			//Read Resource Configuration.
-			ArrayList<String> newResourceList=new ArrayList<String>();
+			ArrayList<String> newResourcePrefixList=new ArrayList<String>();
+			ArrayList<String> newResourceUrlList=new ArrayList<String>();
 			Element resourcesElement=(Element)root.getElementsByTagName("ResourcesURL").item(0);
 			NodeList resourceRuleList=resourcesElement.getElementsByTagName("Rule");
 			for (int i=0; i<resourceRuleList.getLength(); i++) {
 				Element route=(Element)resourceRuleList.item(i);
 				String prefix=route.getAttribute("prefix");
 				if (prefix!=null && prefix.length()>0) {
-					newResourceList.add(prefix);
+					newResourcePrefixList.add(prefix);
+				}
+				String url=route.getAttribute("url");
+				if (url!=null && url.length()>0) {
+					newResourceUrlList.add(url);
 				}
 			}
-			resourceUrlList=newResourceList;
+			resourcePrefixList=newResourcePrefixList;
+			resourceUrlList=newResourceUrlList;
 			
 			//Read Security Configuration.
 			if (root.getElementsByTagName("WebSecurity").getLength()>0) {
@@ -691,7 +698,10 @@ public class Application {
 	 * @return
 	 */
 	public static boolean isResourceURL(String url) {
-		for (String prefix : resourceUrlList) {
+		if (resourceUrlList.contains(url)) {
+			return true;
+		}
+		for (String prefix : resourcePrefixList) {
 			if (url.startsWith(prefix)) {
 				return true;
 			}

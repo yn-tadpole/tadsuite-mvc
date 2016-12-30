@@ -484,4 +484,22 @@ public class AuthUserState {
 	public Object getData(String key) {
 		return userDataMap.containsKey(key) ? userDataMap.get(key) : null;
 	}
+	
+	public LinkedHashMap<String, Object> getInfoMap() {
+		LinkedHashMap<String, Object> auth_info=new LinkedHashMap<String, Object>();
+		auth_info.putAll(userDataMap);
+		auth_info.put("name", getName());
+		auth_info.put("stateId", getStateId());
+		auth_info.put("userId", getUserId());
+		auth_info.put("dpmId", getDpmId());
+		auth_info.put("dpmName", getDpmName());
+		auth_info.put("loginTime", getLoginTime());
+		auth_info.put("loginIp", getLoginIP());
+		auth_info.put("loginCount", getLoginCount());
+		auth_info.put("prevLoginIp", getPrevLoginIP());
+		auth_info.put("prevLoginTime", getPrevLoginTime());
+		auth_info.put("authPath", getAuthPath());
+		auth_info.put("authPathBase", getAuthPath().substring(0, getAuthPath().lastIndexOf("/")+1));
+		return auth_info;
+	}
 }

@@ -28,7 +28,7 @@ public class Jdbc {
 	public static enum RESULT_TYPE {
 		SINGLE_CELL_OBJ, SINGLE_ROW_MAP, SINGLE_COLUMN_ArrayList, ArrayList, PAGED_ArrayList;
 	}
-	public Logger jdbcLogger=LogFactory.getLogger(Constants.LOGGER_NAME_JDBC);
+	public Logger jdbcLogger=LogFactory.getLogger(Constants.LOGGER_NAME_Jdbc);
 	public JdbcExecutor executor;
 	
 	public Jdbc() {
@@ -866,6 +866,10 @@ public class Jdbc {
 
 	public String getNumString(String index) {
 		return executor.getNumString(index);
+	}
+
+	public String getNumString(String index, String format) {
+		return executor.getNumString(index, format);
 	}
 
 	public String getDateString(String index, String format) {

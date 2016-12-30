@@ -24,7 +24,7 @@
 
 
 
-	<!-- WEB安装防火墙设置（防火墙配置对资源文件也有效） -->
+	<!-- WEB安装防火墙设置 -->
 	<!--
 		参数： parameterValueMaxLength用于限制输入参数的长度（默认为3000，用parameter:format方法读取指定格式时不受限制）
 					csrfTokenName、csrfTokenSeedName、signatureName用于指定CSRF检测时的参数值
@@ -76,6 +76,11 @@
   	<DataSource name="dataSource" tablePrefix="" dbType="mysql">
 		<!-- 基本属性 url、user、password -->
 		<!-- <property name="driverClassName" value=""/> 可以省略，系统由url进行判断-->
+		<!-- 
+		<property name="url" value="jdbc:mysql://127.0.0.1/schema_name"/>
+		<property name="url" value="jdbc:oracle:thin:@//127.0.0.1/service_name"/>
+		-->
+		
 		<property name="url" value="jdbc:mysql://127.0.0.1/xxx"/>
 		<property name="username" value="xxx" />
 		<property name="password" value="yyy" />
@@ -122,7 +127,7 @@
    				<property name="bindClientIP" value="true" />
    				<property name="dataSource" value="" />
    				<property name="tableName" value="tb_user" />
-   				<property name="tableColList" value="id:id, name:name, username:username, password:password, status:status, allow_ip:allow_ip, deny_ip:deny_ip, login_count:login_count, login_time:login_time, login_ip:login_ip, prev_login_time:prev_login_time, prev_login_ip:prev_login_ip, permission:permission, state_col : state_id, state_token : state_token" />
+   				<property name="tableColList" value="id:id, name:name, username:username, dpm_id, dpm_name, password:password, status:status, allow_ip:allow_ip, deny_ip:deny_ip, login_count:login_count, login_time:login_time, login_ip:login_ip, prev_login_time:prev_login_time, prev_login_ip:prev_login_ip, permission:permission, state_col : state_id, state_token : state_token" />
    			</AuthClient>
    			
    			<AuthClient authAppId="SYS" authType="SSO">

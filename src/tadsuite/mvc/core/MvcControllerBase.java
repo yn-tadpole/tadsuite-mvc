@@ -173,7 +173,7 @@ public class MvcControllerBase extends MvcBase {
 		return template; //如果没有调用过setMvcView方法，此处返回的是null，将会加载默认模板
 	}
 	
-	public final void cacheJDBC(Jdbc jdbc) {
+	public final void cacheJdbc(Jdbc jdbc) {
 		//jdbcPool.add(jdbc);
 	}
 	
