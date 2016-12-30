@@ -32,10 +32,16 @@ public class MvcControllerBase extends MvcBase {
 //	public String systemName, systemTitle, defaultLocale, defaultDataSourceName, defaultAuthClientAppId, className, methodName, appPath, basePath, rewriteURL, contextPath, serverPath, requestURI;
 	
 	/**Performance Log should been ignored when file downloads and etc.*/
-	public boolean ignorePerformanceStatics=false, allowOutputFormat=false;
+	public boolean unsafeAuthCheck=false;	//如果开启该选项，可以通过URL中换取stateId等信息，兼容在FLASH内部等会丢失SESSION的的Controller
+	public String unsafeAuthStateId=null; 
+	public String unsafeAuthStateIdValKey=null; //该值应由AuthClient.buildUnsafeValString方法生成
+	
+	public boolean ignorePerformanceStatics=false; //是否忽略性能统计，兼容文件下载等长时间运行的Controller
+	public boolean allowOutputFormat=false; //下载允许在URL中指定输出类型，方便调试
 	public MvcRequest request;
 	public Jdbc jdbc; //default data source
 	public AuthUserState auth=null;
+	public LinkedHashMap<String, AuthUserState> authMap=new LinkedHashMap<>();
 	
 	private boolean controllerInited=false, controllerCleaned=false, controllerExecuting=false, resultSetted=false, bindSystemVariables=true;
 	
@@ -51,6 +57,7 @@ public class MvcControllerBase extends MvcBase {
 		}
 		
 		//要放置在这里，而不放置在startAction中，是为了让子类可以通过重写而实现在登录页显示更多内容
+		//不放在AuthedControllerBase类的init方法中，是为也不让登录被错误的类继承关系而失效。
 		Authentication.init(this);
 		request.setAttribute(Constants.AUTH_ININTED_TIME, System.currentTimeMillis());
 		
@@ -135,6 +142,7 @@ public class MvcControllerBase extends MvcBase {
 				rootMap.put("request_uri", requestURI);
 				rootMap.put("server_path", serverPath);
 				rootMap.put("context_path", contextPath);
+				rootMap.put("base_path", mappingResult.basePath);
 				rootMap.put("system_name", Application.getSystemName());
 				rootMap.put("system_title", Application.getSystemTitle());
 				rootMap.put("debugMode", Application.isDebugMode());
@@ -173,9 +181,9 @@ public class MvcControllerBase extends MvcBase {
 		return template; //如果没有调用过setMvcView方法，此处返回的是null，将会加载默认模板
 	}
 	
-	public final void cacheJdbc(Jdbc jdbc) {
-		//jdbcPool.add(jdbc);
-	}
+	//public final void cacheJDBC(Jdbc jdbc) {
+	//	//jdbcPool.add(jdbc);
+	//}
 	
 	/**此方法设置一个返回结果
 	 * 只应在CotrollerBase的子类方法中<strong>一次性</strong>调用此方法，调用后应结束执行过程。

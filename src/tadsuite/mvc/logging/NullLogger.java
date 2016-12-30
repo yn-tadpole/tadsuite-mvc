@@ -5,6 +5,7 @@ public class NullLogger implements Logger {
 	public NullLogger() {
 	}
 
+	@SuppressWarnings("unused")
 	public NullLogger(String name) {
 		//
 	}

@@ -14,6 +14,8 @@ public interface MvcRequest {
 	public LinkedHashMap<String, String> getFinalMap();
 	public ClassMappingResult getClassMappingResult();
 	public void setClassMappingResult(ClassMappingResult classMappingResult);
+	public String getTemplatePath();
+	public void setTemplatePath(String templatePath);
 
 	public MvcResponse getResponse();
 	public HttpServletRequest getHttpRequest();

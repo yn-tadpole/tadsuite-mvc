@@ -1,24 +1,24 @@
 package tadsuite.mvc.core;
 
-import tadsuite.mvc.Application;
-import tadsuite.mvc.auth.AuthClient;
-import tadsuite.mvc.auth.AuthUserState;
 import tadsuite.mvc.core.MvcControllerBase;
 
 public class AuthedControllerBase extends MvcControllerBase {
 
-	protected AuthUserState auth;
 	
 	@Override
 	protected void init() {
 		super.init();
-		
-		AuthClient authClient=AuthClient.getInstance(Application.getDefaultAuthClientAppId(), this);
-		
-		authClient.checkLogin();
-		auth=authClient.getUserState();
-		rootMap.put("auth", auth.getInfoMap());
-		rootMap.put("auth_path", auth.getAuthPath());
+		//auth的初始化放在了MvcControllerBase的init方法中
+		//不放在本类的init方法中，是为也不让登录因错误的类继承关系而失效(例如：本应继承AuthedControllerBase类，却错误地继承MvcControllerBase)。
+		if (auth==null) {
+			setMvcView(RESULT_TEXT, "AuthClient configuration is lost.");
+			return;
+		}
+		String authPath=auth.getAuthPath();
+		int index=auth.getAuthPath().lastIndexOf("/");
+		rootMap.put("auth", auth.getAuthInfoMap());
+		rootMap.put("auth_path", authPath);
+		rootMap.put("auth_path_base", index!=-1 ? authPath.substring(0, index)  : authPath);
 	}
 
 }

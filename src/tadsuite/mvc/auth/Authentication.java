@@ -13,7 +13,12 @@ public class Authentication {
 		for (String prefix : Application.getAuthProtechedUrlMap().keySet()) {
 			if (url.startsWith(prefix)) {
 				String authAppId=Application.getAuthProtechedUrlMap().get(prefix);
-				AuthClient.getInstance(authAppId, controller).checkLogin();
+				AuthClient authClient=AuthClient.getInstance(authAppId, controller);
+				authClient.checkLogin();
+				if (controller.auth==null) {
+					controller.auth=authClient.getUserState();
+				}
+				controller.authMap.put(authAppId, authClient.getUserState());
 			}
 		}
 	}

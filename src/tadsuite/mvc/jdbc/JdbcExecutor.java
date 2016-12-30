@@ -73,6 +73,7 @@ public class JdbcExecutor {
 	private HashMap<Integer, Object> bindValueMap=new HashMap<Integer, Object>();
 	private HashMap<Integer, Object> bindSQLValueMap=new HashMap<Integer, Object>();
 	private Logger JdbcExecutorLogger;
+	public boolean ignoreLogging=false;
 	
 	private ArrayList<JdbcExecutor> chlidrenList=new ArrayList<>();
 
@@ -104,6 +105,10 @@ public class JdbcExecutor {
 		JdbcExecutor newObject=new JdbcExecutor(datasource, dbType, tablePrefix);
 		chlidrenList.add(newObject);
 		return newObject;
+	}
+	
+	public void attachChildExecutor(JdbcExecutor executor) {
+		chlidrenList.add(executor);
 	}
 	
 	/**
@@ -657,17 +662,19 @@ public class JdbcExecutor {
 		startTime=System.currentTimeMillis();
 	}
 	private void endTiming() {
-		long usedTime=System.currentTimeMillis()-startTime;
-		if (usedTime>10000) {
-			JdbcExecutorLogger.warn("JdbcExecutor-slow10000:{}ms - {}", usedTime, currentSQLString());
-		} else if (usedTime>6000) {
-			JdbcExecutorLogger.warn("JdbcExecutor-slow6000:{}ms - {}", usedTime, currentSQLString());
-		} else if (usedTime>3000) {
-			JdbcExecutorLogger.warn("JdbcExecutor-slow3000:{}ms - {}", usedTime, currentSQLString());
-		} else if (usedTime>1000) {
-			JdbcExecutorLogger.info("JdbcExecutor-slow1000:{}ms - {}", usedTime, currentSQLString());
-		} else if (JdbcExecutorLogger.isDebugEnabled()) {
-			JdbcExecutorLogger.debug("JdbcExecutor:{}ms - {}", usedTime, currentSQLString());
+		if (!ignoreLogging) {
+			long usedTime=System.currentTimeMillis()-startTime;
+			if (usedTime>10000) {
+				JdbcExecutorLogger.warn("JdbcExecutor-slow10000:{}ms - {}", usedTime, currentSQLString());
+			} else if (usedTime>6000) {
+				JdbcExecutorLogger.warn("JdbcExecutor-slow6000:{}ms - {}", usedTime, currentSQLString());
+			} else if (usedTime>3000) {
+				JdbcExecutorLogger.warn("JdbcExecutor-slow3000:{}ms - {}", usedTime, currentSQLString());
+			} else if (usedTime>1000) {
+				JdbcExecutorLogger.info("JdbcExecutor-slow1000:{}ms - {}", usedTime, currentSQLString());
+			} else if (JdbcExecutorLogger.isDebugEnabled()) {
+				JdbcExecutorLogger.debug("JdbcExecutor:{}ms - {}", usedTime, currentSQLString());
+			}
 		}
 	}
 	
@@ -1021,12 +1028,12 @@ public class JdbcExecutor {
 	
 	public JdbcExecutor setArgArray(Object... args) {
 		for (int index=0; index<args.length; index++) {
-			setCell(args[index], index, args[index]);
+			setCell(args[index], index);
 		}
 		return this;
 	}
 	
-	public <T> void setCell(T t , int index, Object value){ 
+	public <T> void setCell(T t , int index){ 
 		if (t instanceof String) {
 			setString(index+1, (String)t);
 		} else if (t instanceof Long) {
@@ -1903,12 +1910,10 @@ public class JdbcExecutor {
 		return pgCurrent;
 	}
 
-	@Deprecated
 	public String buildPgString(String urlStr) {
 		return buildPgString(10, urlStr);
 	}
 
-	@Deprecated
 	public String buildPgString(int style, String urlStr) {
 		StringBuilder sb = new StringBuilder();
 		if (rowTotal < 1) {
@@ -2055,7 +2060,7 @@ public class JdbcExecutor {
 	}
 	
 	public String parseSqlForPage(String sql, int pageSize, int pageCurrent) {
-		return parseSqlForPage(sql, dbType, pageSize, pgCurrent);
+		return parseSqlForPage(sql, dbType, pageSize, pageCurrent);
 	}
 	
 	/**

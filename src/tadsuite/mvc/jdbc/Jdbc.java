@@ -9,9 +9,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import javax.sql.DataSource;
 
-import tadsuite.mvc.logging.LogFactory;
-import tadsuite.mvc.logging.Logger;
-import tadsuite.mvc.utils.Constants;
 import tadsuite.mvc.utils.NameMapper;
 import tadsuite.mvc.utils.NameMapper.MAP_POLICY;
 
@@ -28,7 +25,7 @@ public class Jdbc {
 	public static enum RESULT_TYPE {
 		SINGLE_CELL_OBJ, SINGLE_ROW_MAP, SINGLE_COLUMN_ArrayList, ArrayList, PAGED_ArrayList;
 	}
-	public Logger jdbcLogger=LogFactory.getLogger(Constants.LOGGER_NAME_Jdbc);
+	//public Logger jdbcLogger=LogFactory.getLogger(Constants.LOGGER_NAME_JDBC);
 	public JdbcExecutor executor;
 	
 	public Jdbc() {
@@ -101,6 +98,7 @@ public class Jdbc {
 		return _query(-1, 1, sql, null, args);
 	}
 
+	@SuppressWarnings("unused")
 	@Deprecated
 	/**
 	 * 不能同时使用JdbcParams params和 Object... args参数（但此方法必须定义，否则将会错误地调用query(String sql, Object... args)）
@@ -125,6 +123,7 @@ public class Jdbc {
 		return _query(maxRows, 1, sql, null, args);
 	}
 	
+	@SuppressWarnings("unused")
 	@Deprecated
 	/**
 	 * 不能同时使用JdbcParams params和 Object... args参数（但此方法必须定义，否则将会错误地调用query(int maxRows, String sql, Object... args)）
@@ -149,6 +148,7 @@ public class Jdbc {
 		return _query(pgSize, pgCurrent, sql, null, args);
 	}
 	
+	@SuppressWarnings("unused")
 	@Deprecated
 	/**
 	 * 不能同时使用JdbcParams params和 Object... args参数（但此方法必须定义，否则将会错误地调用query(int pgSize, int pgCurrent, String sql, Object... args)
@@ -866,10 +866,6 @@ public class Jdbc {
 
 	public String getNumString(String index) {
 		return executor.getNumString(index);
-	}
-
-	public String getNumString(String index, String format) {
-		return executor.getNumString(index, format);
 	}
 
 	public String getDateString(String index, String format) {

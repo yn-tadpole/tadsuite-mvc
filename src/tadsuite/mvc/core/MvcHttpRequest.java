@@ -27,6 +27,7 @@ public class MvcHttpRequest implements MvcRequest {
 	private LinkedHashMap<String, Object> rootMap=null;
 	private LinkedHashMap<String, String> finalMap=null;
 	private ClassMappingResult classMappingResult=null;
+	private String templatePath;
 	
 	public MvcHttpRequest(ServletRequest request, ServletResponse response) {
 		this((HttpServletRequest)request, (HttpServletResponse) response);
@@ -72,6 +73,14 @@ public class MvcHttpRequest implements MvcRequest {
 	
 	public void setClassMappingResult(ClassMappingResult classMappingResult) {
 		this.classMappingResult=classMappingResult;
+	}
+	
+	public String getTemplatePath() {
+		return templatePath;
+	}
+	
+	public void setTemplatePath(String templatePath) {
+		this.templatePath=templatePath;
 	}
 
 	public String getScheme() {
@@ -132,18 +141,14 @@ public class MvcHttpRequest implements MvcRequest {
 	}
 	
 	public String getRemoteAddr() {
-		String xForward=httpRequest.getHeader("X-Forwarded");
-		if (xForward!=null) {
-			String ip=xForward.substring(0, xForward.indexOf(",")).trim();
-			if (ip.length()>1) {
-				return ip;
+		//只有在使用了useProxy时才获取上一层代理地址，而且只获取最后一层代理的地址，防止IP地址伪造
+		if (Application.getConfig("useProxy").equals("true") || Application.getConfig("useProxy").equals("Y") || Application.getConfig("useProxy").equals("1")) {
+			String xForwardFor=httpRequest.getHeader("X-Forwarded-For");
+			if (xForwardFor!=null && xForwardFor.length()>0) {
+				return xForwardFor.substring(xForwardFor.lastIndexOf(",")+1).trim();
 			}
 		}
-		String xForwardFor=httpRequest.getHeader("X-Forwarded-For");
-		if (xForwardFor!=null && xForwardFor.length()>0) {
-			return xForwardFor;
-		}
-		return httpRequest.getRemoteAddr(); 
+		return httpRequest.getRemoteAddr();
 	}
 	
 	public String getLocalAddr() {
