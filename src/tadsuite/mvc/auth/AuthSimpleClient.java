@@ -6,6 +6,7 @@ import java.util.Map;
 
 import tadsuite.mvc.Application;
 import tadsuite.mvc.core.MvcControllerBase;
+import tadsuite.mvc.core.MvcRequest;
 import tadsuite.mvc.jdbc.Jdbc;
 import tadsuite.mvc.jdbc.JdbcParams;
 import tadsuite.mvc.logging.LogFactory;
@@ -53,7 +54,7 @@ public final class AuthSimpleClient extends AuthClient {
 	private String tableName;
 	private String tableColList;
 		
-	private MvcControllerBase controller;
+	private MvcRequest request;
 	protected Jdbc jdbc;
 	private long timer=0;
 	private boolean ignoreValString=false;
@@ -70,10 +71,10 @@ public final class AuthSimpleClient extends AuthClient {
 	public AuthSimpleClient(AuthClientConfig config, MvcControllerBase controller, boolean isIgnoreValString) {
 		
 		timer=System.currentTimeMillis();
-		this.controller=controller;
+		this.request=controller.request;
 		this.config=config;
-		denyNumLockerForWrongPassword="DENY_NUM_WP_"+controller.request.getRemoteAddr();
-		denyNumLockerForWrongValidateCode="DENY_NUM_WV_"+controller.request.getRemoteAddr();
+		denyNumLockerForWrongPassword="DENY_NUM_WP_"+request.getRemoteAddr();
+		denyNumLockerForWrongValidateCode="DENY_NUM_WV_"+request.getRemoteAddr();
 		ignoreValString=isIgnoreValString;
 		
 		loginTemplate=config.get("loginTemplate", MvcControllerBase.RESULT_LOGIN);
@@ -82,16 +83,16 @@ public final class AuthSimpleClient extends AuthClient {
 		canKeepState=config.get("canKeepState", "false").equals("true") || config.get("canKeepState", "false").equals("Y") || config.get("canKeepState", "false").equals("1");
 		expireMinute=Utils.parseInt(config.get("expireMinute", "60"), 60);
 		passwordEncrypt=config.get("passwordEncrypt", "");
-		cookieDomain=config.get("cookieDomain", ""); //不能加默认服务器名称，防止负载均衡丢失会话 controller.request.getServerName()
-		cookiePath=config.get("cookiePath", controller.request.getContextPath()+"/");//简单会话可以加路径
+		cookieDomain=config.get("cookieDomain", ""); //不能加默认服务器名称，防止负载均衡丢失会话 request.getServerName()
+		cookiePath=config.get("cookiePath", request.getContextPath()+"/");//简单会话可以加路径
 		dataSource=config.get("dataSource", "");
 		tableName = config.get("tableName", "");
 		tableColList = config.get("tableColList", "");
 		
-		stateSessionName="STATE_"+Utils.md5(config.authAppId+controller.request.getContextPath());
-		stateValStringCookieName = "S" + Utils.md5("SVSCN" + config.authAppId + controller.request.getContextPath()).toUpperCase();
-		stateIdCookieName = "S" + Utils.md5("SICN" + config.authAppId + controller.request.getContextPath()).toUpperCase();
-		stateIdValStringCookieName = "S" + Utils.md5("SIVCN" + config.authAppId + controller.request.getContextPath()).toUpperCase();
+		stateSessionName="STATE_"+Utils.md5(config.authAppId+request.getContextPath());
+		stateValStringCookieName = "S" + Utils.md5("SVSCN" + config.authAppId + request.getContextPath()).toUpperCase();
+		stateIdCookieName = "S" + Utils.md5("SICN" + config.authAppId + request.getContextPath()).toUpperCase();
+		stateIdValStringCookieName = "S" + Utils.md5("SIVCN" + config.authAppId + request.getContextPath()).toUpperCase();
 		logined=false;
 		
 		if (config.authAppId.length()<1) {
@@ -104,13 +105,13 @@ public final class AuthSimpleClient extends AuthClient {
 			jdbc=controller.jdbc;
 		}
 		
-		controller.request.getResponse().setHeader("Pragma","No-cache");
-		controller.request.getResponse().setHeader("Cache-Control","no-cache, no-store");
-		controller.request.getResponse().setDateHeader("Expires", 0);
+		request.getResponse().setHeader("Pragma","No-cache");
+		request.getResponse().setHeader("Cache-Control","no-cache, no-store");
+		request.getResponse().setDateHeader("Expires", 0);
 		
-		String authAction = controller.request.readInput("auth_action");
+		String authAction = request.readInput("auth_action");
 		if (authAction.equals("login")) {// 已提交用户名密码
-			String result = login(controller.request.readInput("fdUsername"), controller.request.readInput("fdPassword"), controller.request.readInput("fdValidationStr"), controller.request.readInput("fdSaveState").equals("1"));
+			String result = login(request.readInput("fdUsername"), request.readInput("fdPassword"), request.readInput("fdValidationStr"), request.readInput("fdSaveState").equals("1"));
 			MvcControllerBase.endExecuting(MvcControllerBase.RESULT_TEXT, buildResult(true, result.equals("success") ? "success" : "error", result));
 			return;
 
@@ -120,26 +121,26 @@ public final class AuthSimpleClient extends AuthClient {
 			return;
 
 		} else if (authAction.equals("checkval")) {// 已提交用户名密码
-			String result = checkValidateCode(controller.request.readInput("fdValidationStr"));
+			String result = checkValidateCode(request.readInput("fdValidationStr"));
 			MvcControllerBase.endExecuting(MvcControllerBase.RESULT_TEXT, result);
 			return;
 
 		} else if (authAction.equals("logout")) { // 检测是否请求退出系统
 			logout();
-			String url = controller.request.readInput("url").length() > 0 ? controller.request.readInput("url") : controller.request.getContextPath() + "/";
-			controller.request.getResponse().sendRedirect(url);
+			String url = request.readInput("url").length() > 0 ? request.readInput("url") : request.getContextPath() + "/";
+			request.getResponse().sendRedirect(url);
 			MvcControllerBase.endExecuting();
 			return;
 		}
 
 		try {
-			state = controller.request.sessionRead(stateSessionName) != null ? (AuthUserState) controller.request.sessionRead(stateSessionName) : null;
+			state = request.sessionRead(stateSessionName) != null ? (AuthUserState) request.sessionRead(stateSessionName) : null;
 		} catch (ClassCastException e) {
 			state = null;
 		}
 		if (state != null) {// 如果存在登录会话
-			String valString = (String) controller.request.cookieRead(stateValStringCookieName);
-			String valStringSession = buildSessionValString(controller.request, state.stateId, bindClientIP);
+			String valString = (String) request.cookieRead(stateValStringCookieName);
+			String valStringSession = buildSessionValString(request, state.stateId, bindClientIP);
 			if (ignoreValString || valStringSession.equals(valString)) {
 				if (refreshUserState(false)) {
 					logined = true;
@@ -159,26 +160,20 @@ public final class AuthSimpleClient extends AuthClient {
 				}
 
 			} else {// 会话无效，只有Session存在，Cookie丢失，才会出现这种情况，最早因为Cookie作用范围的BUG导致此问题，正常情况下除非出现Session劫持，否则不会再现。
-				authLogger.warn("AuthClient - wrong validate string : {}, should be : {}, from : {}", valString, valStringSession, controller.request.getRemoteAddr());
+				authLogger.warn("AuthClient - wrong validate string : {}, should be : {}, from : {}", valString, valStringSession, request.getRemoteAddr());
 				state = null;
-				controller.request.sessionDelete(stateSessionName);
-				controller.request.cookieDelete(stateValStringCookieName, cookiePath, cookieDomain);
+				request.sessionDelete(stateSessionName);
+				request.cookieDelete(stateValStringCookieName, cookiePath, cookieDomain);
 			}
 		}
 		
 		// 没有会话，或者会话验证为无效，则尝试使用Cookie值恢复会话。由于恢复会话仅对同一IP，所以认为可以保证安全。
-		String stateId = controller.request.cookieRead(stateIdCookieName);
-		String stateIdValString = controller.request.cookieRead(stateIdValStringCookieName);
-		if (stateIdValString != null && stateIdValString.equals(buildCookieValString(controller.request, stateId))) {
+		String stateId = request.cookieRead(stateIdCookieName);
+		String stateIdValString = request.cookieRead(stateIdValStringCookieName);
+		if (stateIdValString != null && stateIdValString.equals(buildCookieValString(request, stateId))) {
 			if (!recoveryUserState(stateId)) {
-				controller.request.cookieDelete(stateIdCookieName, cookiePath, cookieDomain);
-				controller.request.cookieDelete(stateIdValStringCookieName, cookiePath, cookieDomain);
-			}
-		}
-		
-		if (controller.unsafeAuthCheck && controller.unsafeAuthStateId!=null && controller.unsafeAuthStateIdValKey!=null) {
-			if (controller.unsafeAuthStateIdValKey.equals(buildUnsafeValString(controller.request, controller.unsafeAuthStateId))) {
-				recoveryUserState(controller.unsafeAuthStateId);
+				request.cookieDelete(stateIdCookieName, cookiePath, cookieDomain);
+				request.cookieDelete(stateIdValStringCookieName, cookiePath, cookieDomain);
 			}
 		}
 	}
@@ -189,7 +184,7 @@ public final class AuthSimpleClient extends AuthClient {
 	 */
 	public void checkLogin() {
 		
-		Application.sysLock_check(controller.request.getRemoteAddr(), true);
+		Application.sysLock_check(request.getRemoteAddr(), true);
 		
 		if (logined) {//只判断登录，不判断是否有进入的权限。(!bCheckAppId && logined) || testWithAppId("", "", currentAppId, false)
 			return;
@@ -199,35 +194,35 @@ public final class AuthSimpleClient extends AuthClient {
 				useValidationCode=true;
 			}
 			
-			controller.request.generateTokenMark(true, null);
-			controller.request.getRootMap().put("auth_type", "simple");
-			controller.request.getRootMap().put("auth_path", "");
-			controller.request.getRootMap().put("auth_useValidationCode", useValidationCode);
-			controller.request.getRootMap().put("auth_canKeepState", canKeepState);
-			controller.request.getRootMap().put("auth_passwordEncrypt", passwordEncrypt);
-			controller.request.getRootMap().put("auth_swapKey", generateSwapKey());
+			request.generateTokenMark(true, null);
+			request.getRootMap().put("auth_type", "simple");
+			request.getRootMap().put("auth_path", "");
+			request.getRootMap().put("auth_useValidationCode", useValidationCode);
+			request.getRootMap().put("auth_canKeepState", canKeepState);
+			request.getRootMap().put("auth_passwordEncrypt", passwordEncrypt);
+			request.getRootMap().put("auth_swapKey", generateSwapKey());
 			MvcControllerBase.endExecuting(loginTemplate, "");
 			return;
 		}
 	}
 	
 	private void generateValidateCode() {
-		int backgroundColorR=Math.max(0, Math.min(255, Utils.parseInt(controller.request.readInput("r"), 200)));
-		int backgroundColorG=Math.max(0, Math.min(255, Utils.parseInt(controller.request.readInput("g"), 200)));
-		int backgroundColorB=Math.max(0, Math.min(255, Utils.parseInt(controller.request.readInput("b"), 200)));
-		int width=Math.max(60, Math.min(160, Utils.parseInt(controller.request.readInput("w"), 80)));
-		int height=Math.max(20, Math.min(60, Utils.parseInt(controller.request.readInput("h"), 30)));
-		controller.request.getResponse().setContentType("image/png");
-		ValidationImageUtils.generate("VALCODE"+config.authAppId, 4, width, height, backgroundColorR, backgroundColorG, backgroundColorB, controller.request);
+		int backgroundColorR=Math.max(0, Math.min(255, Utils.parseInt(request.readInput("r"), 200)));
+		int backgroundColorG=Math.max(0, Math.min(255, Utils.parseInt(request.readInput("g"), 200)));
+		int backgroundColorB=Math.max(0, Math.min(255, Utils.parseInt(request.readInput("b"), 200)));
+		int width=Math.max(60, Math.min(160, Utils.parseInt(request.readInput("w"), 80)));
+		int height=Math.max(20, Math.min(60, Utils.parseInt(request.readInput("h"), 30)));
+		request.getResponse().setContentType("image/png");
+		ValidationImageUtils.generate("VALCODE"+config.authAppId, 4, width, height, backgroundColorR, backgroundColorG, backgroundColorB, request);
 	}
 
 	private String checkValidateCode(String validationStr) {
-		controller.request.checkCsrfToken();
-		Application.sysLock_check(controller.request.getRemoteAddr(), true);
+		request.checkCsrfToken();
+		Application.sysLock_check(request.getRemoteAddr(), true);
 		
-		String sessionValidationStr=(String) controller.request.sessionRead("VALCODE"+config.authAppId);
+		String sessionValidationStr=(String) request.sessionRead("VALCODE"+config.authAppId);
 		if (sessionValidationStr==null || sessionValidationStr.length()<1 || !validationStr.equalsIgnoreCase(sessionValidationStr)) {
-			String strRemoteIP=controller.request.getRemoteAddr();
+			String strRemoteIP=request.getRemoteAddr();
 			authLogger.trace("AuthClient - invalid Validation Code : {}", strRemoteIP);
 			int wrongCount=Application.readDenyNum(denyNumLockerForWrongValidateCode);
 			if (wrongCount>=LOCK_WRONG_VALCODE_NUMBERS) {
@@ -248,13 +243,13 @@ public final class AuthSimpleClient extends AuthClient {
 	 * @param jdbc  数据库对象
 	  */
 	private String login(String username, String password, String validationStr, boolean keepState) {
-		controller.request.checkCsrfToken();
+		request.checkCsrfToken();
 		cookieSaveTime=canKeepState && keepState ? 24*60*60  : -1;
 		
-		String strRemoteIP=controller.request.getRemoteAddr();
+		String strRemoteIP=request.getRemoteAddr();
 		if (!Application.sysLock_check(strRemoteIP, false)) {
-			authLogger.info("AuthClient - ip has been locked : {}", controller.request.getRemoteAddr());
-			return controller.request.readLocaleText("This_IP_Has_Been_Blocked");
+			authLogger.info("AuthClient - ip has been locked : {}", request.getRemoteAddr());
+			return request.readLocaleText("This_IP_Has_Been_Blocked");
 		}
 		int wrongPasswordCount=Application.readDenyNum(denyNumLockerForWrongPassword);
 		if (wrongPasswordCount>=VALIDATE_WRONG_PASSWORD_NUMBERS) {//要考虑同一WIFI的问题
@@ -264,15 +259,15 @@ public final class AuthSimpleClient extends AuthClient {
 			Application.sysLock_lock(strRemoteIP, 60);
 			Application.deleteDenyNum(denyNumLockerForWrongValidateCode); //锁定IP后可以清除输入错误的次数
 			Application.deleteDenyNum(denyNumLockerForWrongPassword); //锁定IP后可以清除密码输入错误的次数
-			authLogger.warn("AuthClient - too times for wrong password : {}", controller.request.getRemoteAddr());
-			return controller.request.readLocaleText("Too_Times_To_Try_Password");
+			authLogger.warn("AuthClient - too times for wrong password : {}", request.getRemoteAddr());
+			return request.readLocaleText("Too_Times_To_Try_Password");
 		}
 		
 		if (useValidationCode) {
-			String sessionValidationStr=(String) controller.request.sessionRead("VALCODE"+config.authAppId);
-			controller.request.sessionWrite("VALCODE"+config.authAppId, ""); //清除，以便强制刷新验证码
+			String sessionValidationStr=(String) request.sessionRead("VALCODE"+config.authAppId);
+			request.sessionWrite("VALCODE"+config.authAppId, ""); //清除，以便强制刷新验证码
 			if (sessionValidationStr==null || sessionValidationStr.length()<4 || !validationStr.equalsIgnoreCase(sessionValidationStr)) {
-				authLogger.trace("AuthClient - invalid Validation Code : {}", controller.request.getRemoteAddr());
+				authLogger.trace("AuthClient - invalid Validation Code : {}", request.getRemoteAddr());
 				int wrongCount=Application.readDenyNum(denyNumLockerForWrongValidateCode);
 				if (wrongCount>=LOCK_WRONG_VALCODE_NUMBERS) {
 					Application.sysLock_lock(strRemoteIP, 60);
@@ -282,17 +277,17 @@ public final class AuthSimpleClient extends AuthClient {
 				} else {
 					Application.writeDenyNum(denyNumLockerForWrongValidateCode, wrongCount+1);
 				}
-				return controller.request.readLocaleText("Validation_Code_Error");
+				return request.readLocaleText("Validation_Code_Error");
 			}
 		}
 		if (username.length()<1 || username.length()>50) {
-			return controller.request.readLocaleText("Username_Is_Required");
+			return request.readLocaleText("Username_Is_Required");
 		}
 		String denyNumLockerForUsername="DENY_NUM_USER_"+username;
 		int wrongPasswordForUsername=Application.readDenyNum(denyNumLockerForUsername);
 		if (wrongPasswordForUsername>=LOCK_USERNAME_NUMBERS) {//这里不再锁IP，而不保留会该用户的锁定（一小时）
 			authLogger.warn("AuthClient - too times for wrong password for user : {} ", username);
-			return controller.request.readLocaleText("Too_Times_To_Try_Password");
+			return request.readLocaleText("Too_Times_To_Try_Password");
 		}
 				
 		StringBuffer colString=new StringBuffer();
@@ -313,7 +308,7 @@ public final class AuthSimpleClient extends AuthClient {
 		
 		Map<String, Object> row=jdbc.queryRow("select  "+colString.toString()+" from "+tableName+" where "+colMap.get("username")+"=?", username);
 		if (row==null) {
-			if (controller.request.getRemoteAddr().equals(controller.request.getLocalAddr())) {//在服务器本机上操作，则检查系统是否没有用户
+			if (request.getRemoteAddr().equals(request.getLocalAddr())) {//在服务器本机上操作，则检查系统是否没有用户
 				Map<String, Object> firstRow=jdbc.queryRow("select "+colMap.get("id")+" from "+tableName);
 				if (firstRow!=null) { //系统用户表是空的
 					if (username.equals(VIRTUAL_USERNAME)) {
@@ -321,35 +316,35 @@ public final class AuthSimpleClient extends AuthClient {
 					}
 				}
 			} 
-			authLogger.trace("AuthClient - wrong username : {}, {}", controller.request.getRemoteAddr(), username);
+			authLogger.trace("AuthClient - wrong username : {}, {}", request.getRemoteAddr(), username);
 			Application.writeDenyNum(denyNumLockerForWrongPassword, wrongPasswordCount+1);
-			return wrongPasswordCount>=VALIDATE_WRONG_PASSWORD_NUMBERS-1 && !useValidationCode ? "validate" : controller.request.readLocaleText("Wrong_Username_Or_Password")+"!";
+			return wrongPasswordCount>=VALIDATE_WRONG_PASSWORD_NUMBERS-1 && !useValidationCode ? "validate" : request.readLocaleText("Wrong_Username_Or_Password")+"!";
 		
 		} else {//找到了当前用户的数据
 			
-			String swapKey=(String)controller.request.sessionRead(SWAP_KEY_SESSION_NAME);
+			String swapKey=(String)request.sessionRead(SWAP_KEY_SESSION_NAME);
 			if (!password.equals(Utils.sha256(row.get("password")+swapKey))) {
-				authLogger.trace("AuthClient - wrong password for user : {}, from: {}", username, controller.request.getRemoteAddr());
+				authLogger.trace("AuthClient - wrong password for user : {}, from: {}", username, request.getRemoteAddr());
 				Application.writeDenyNum(denyNumLockerForWrongPassword, wrongPasswordCount+1);
 				Application.writeDenyNum(denyNumLockerForUsername, wrongPasswordForUsername+1);
-				return wrongPasswordCount>=VALIDATE_WRONG_PASSWORD_NUMBERS-1 && !useValidationCode ? "validate" : controller.request.readLocaleText("Wrong_Username_Or_Password");
+				return wrongPasswordCount>=VALIDATE_WRONG_PASSWORD_NUMBERS-1 && !useValidationCode ? "validate" : request.readLocaleText("Wrong_Username_Or_Password");
 			} 
 			if (colMap.containsKey("status")) {
 				if (!String.valueOf(row.get("status")).equals("1")) {
-					authLogger.trace("AuthClient - access locked user : {}, from: {}", username, controller.request.getRemoteAddr());
-					return controller.request.readLocaleText("This_User_Has_Been_Locked");
+					authLogger.trace("AuthClient - access locked user : {}, from: {}", username, request.getRemoteAddr());
+					return request.readLocaleText("This_User_Has_Been_Locked");
 				}
 			}
 			if (colMap.containsKey("allow_ip")) {
-				if (((String)row.get("allow_ip")).length()>0 && !Utils.regi((String)row.get("allow_ip"), controller.request.getRemoteAddr())) {
-					authLogger.trace("AuthClient - access user : {}, from: {}, which not in allow range.", username, controller.request.getRemoteAddr());
-					return controller.request.readLocaleText("This_IP_Is_Not_Allowed");
+				if (((String)row.get("allow_ip")).length()>0 && !Utils.regi((String)row.get("allow_ip"), request.getRemoteAddr())) {
+					authLogger.trace("AuthClient - access user : {}, from: {}, which not in allow range.", username, request.getRemoteAddr());
+					return request.readLocaleText("This_IP_Is_Not_Allowed");
 				}
 			}
 			if (colMap.containsKey("deny_ip")) {
-				if (((String)row.get("deny_ip")).length()>0 && Utils.regi((String)row.get("deny_ip"), controller.request.getRemoteAddr())) {
-					authLogger.trace("AuthClient - access user : {}, from: {}, which in deny range.", username, controller.request.getRemoteAddr());
-					return controller.request.readLocaleText("This_IP_Has_Been_Blocked");
+				if (((String)row.get("deny_ip")).length()>0 && Utils.regi((String)row.get("deny_ip"), request.getRemoteAddr())) {
+					authLogger.trace("AuthClient - access user : {}, from: {}, which in deny range.", username, request.getRemoteAddr());
+					return request.readLocaleText("This_IP_Has_Been_Blocked");
 				}
 			}
 			Application.writeDenyNum(denyNumLockerForWrongPassword, 0);//登录成功应该清除错误次数，否则永远都累计是不正确的。
@@ -362,7 +357,7 @@ public final class AuthSimpleClient extends AuthClient {
 	 * 退出系统，仅限Simple。
 	 */
 	private void logout() {
-		controller.request.checkReferer();
+		request.checkReferer();
 		Logger authLogger=LogFactory.getLogger(Constants.LOGGER_NAME_AUTH);
 		if (state!=null) {
 			StringBuffer colString=new StringBuffer();
@@ -379,17 +374,17 @@ public final class AuthSimpleClient extends AuthClient {
 			if (colMap.containsKey("state_col") && colMap.get("state_col").length()>0 && colMap.containsKey("state_token") && colMap.get("state_token").length()>0) {
 				jdbc.execute("update "+tableName+" set "+colMap.get("state_col")+"='', "+colMap.get("state_token")+"='' where "+colMap.get("id")+"=?", state.userId);
 			}
-			authLogger.info("AuthClient Logout  {} State -  ip:{} data:userId={}; name={}; dpmName={}; loginIP={}; loginTime={}; loginCount={}; stateId={}", authType, controller.request.getRemoteAddr(), state.userId, state.userName, state.dpmName, state.loginIP, state.loginTime, state.loginCount, state.stateId);
+			authLogger.info("AuthClient Logout  {} State -  ip:{} data:userId={}; name={}; dpmName={}; loginIP={}; loginTime={}; loginCount={}; stateId={}", authType, request.getRemoteAddr(), state.userId, state.userName, state.dpmName, state.loginIP, state.loginTime, state.loginCount, state.stateId);
 		} else {
-			authLogger.info("AuthClient Logout  {} State -  ip:{} repeat without state data.", authType, controller.request.getRemoteAddr());
+			authLogger.info("AuthClient Logout  {} State -  ip:{} repeat without state data.", authType, request.getRemoteAddr());
 		}
 		state=null;
 		logined=false;
-		controller.request.sessionDelete(stateSessionName);
-		controller.request.sessionReset();
-		controller.request.cookieDelete(stateValStringCookieName, cookiePath);
-		controller.request.cookieDelete(stateIdCookieName, cookiePath, cookieDomain);
-		controller.request.cookieDelete(stateIdValStringCookieName, cookiePath, cookieDomain);
+		request.sessionDelete(stateSessionName);
+		request.sessionReset();
+		request.cookieDelete(stateValStringCookieName, cookiePath);
+		request.cookieDelete(stateIdCookieName, cookiePath, cookieDomain);
+		request.cookieDelete(stateIdValStringCookieName, cookiePath, cookieDomain);
 	}
 	
 	private boolean recoveryUserState(String stateId) {
@@ -410,19 +405,19 @@ public final class AuthSimpleClient extends AuthClient {
 		if (colString.length()<3) {
 			return false;
 		} else if (!colMap.containsKey("state_col") || colMap.get("state_col").length()<1 || !colMap.containsKey("state_token") || colMap.get("state_token").length()<1 || !colMap.containsKey("login_ip") || colMap.get("login_ip").length()<1) {
-			authLogger.trace("AuthClient - user table hasn't column: state_col, state_token, login_ip . couldn't recoery user state for {}, {}", controller.request.getRemoteAddr(), stateId);
+			authLogger.trace("AuthClient - user table hasn't column: state_col, state_token, login_ip . couldn't recoery user state for {}, {}", request.getRemoteAddr(), stateId);
 			return false;
 		}
 		colString.delete(colString.length()-2, colString.length());
 		
-		Map<String, Object> row=jdbc.queryRow("select  "+colString.toString()+" from "+tableName+" where "+colMap.get("state_col")+"=? and "+colMap.get("login_ip")+"=?", stateId, controller.request.getRemoteAddr());
+		Map<String, Object> row=jdbc.queryRow("select  "+colString.toString()+" from "+tableName+" where "+colMap.get("state_col")+"=? and "+colMap.get("login_ip")+"=?", stateId, request.getRemoteAddr());
 		if (row==null) {
-			authLogger.trace("AuthClient - wrong stateId to recovery : {}, {}", controller.request.getRemoteAddr(), stateId);
+			authLogger.trace("AuthClient - wrong stateId to recovery : {}, {}", request.getRemoteAddr(), stateId);
 			return false;
 		} else {
 			Date loginTime=(Date)row.get("login_time");
 			if (cookieSaveTime==-1 && loginTime!=null && loginTime.getTime()<Utils.now().getTime()-expireMinute*60000) {
-				authLogger.trace("AuthClient - timeout stateId to recovery : {}, {}", controller.request.getRemoteAddr(), stateId);
+				authLogger.trace("AuthClient - timeout stateId to recovery : {}, {}", request.getRemoteAddr(), stateId);
 				return false;
 			}
 			authLogger.warn("AuthClient State Recovery /////////////////////////////////////////////////////////////////////////////////");
@@ -432,8 +427,10 @@ public final class AuthSimpleClient extends AuthClient {
 	}
 	
 	private String generateUserState(LinkedHashMap<String, String> colMap, Map<String, Object> userDataMap, String stateId, String token, String username, boolean isVirtualUser, boolean isRecovery) {
-		state=new AuthUserState(config, "", stateId, (String) userDataMap.get("id")
-				, (String) userDataMap.get("name"), "_", "", controller.request.getRemoteAddr()
+		state=new AuthUserState(config, "", stateId
+				, (String) userDataMap.get("id"), (String) userDataMap.get("name")
+				, colMap.containsKey("dpm_id") ? (String) userDataMap.get("dpm_id") : "_", colMap.containsKey("dpm_name") ? (String) userDataMap.get("dpm_name") : ""
+				, request.getRemoteAddr()
 				, colMap.containsKey("login_count") ? (Integer) userDataMap.get("login_count") : -1
 				, Utils.now(), colMap.containsKey("login_time") ? (Date) userDataMap.get("login_time") : null
 				, colMap.containsKey("login_ip") ? (String) userDataMap.get("login_ip") : ""
@@ -461,7 +458,7 @@ public final class AuthSimpleClient extends AuthClient {
 			}
 			if (colMap.containsKey("login_ip") && colMap.get("login_ip").length()>0) { 
 				sql.append(colMap.get("login_ip")+"=${login_ip}, ");
-				params.putString("login_ip", controller.request.getRemoteAddr()); 
+				params.putString("login_ip", request.getRemoteAddr()); 
 			}
 			if (sql.length()>2) {
 				sql.delete(sql.length()-2,  sql.length()); //去除最后一个“,
@@ -469,25 +466,25 @@ public final class AuthSimpleClient extends AuthClient {
 				jdbc.execute("update "+tableName+" set "+sql+ " where "+colMap.get("username")+"=${username}", params);
 			}
 		}
-		controller.request.sessionReset();
-		controller.request.sessionWrite(stateSessionName, state);
-		controller.request.cookieWrite(stateValStringCookieName, buildSessionValString(controller.request, stateId, bindClientIP), cookiePath, cookieDomain);
-		controller.request.cookieWrite(stateIdCookieName, stateId, cookieSaveTime, cookiePath, cookieDomain, true);
-		controller.request.cookieWrite(stateIdValStringCookieName, buildCookieValString(controller.request, stateId), cookieSaveTime, cookiePath, cookieDomain, true);
-		controller.request.generateTokenMark(true, token);
+		request.sessionReset();
+		request.sessionWrite(stateSessionName, state);
+		request.cookieWrite(stateValStringCookieName, buildSessionValString(request, stateId, bindClientIP), cookiePath, cookieDomain);
+		request.cookieWrite(stateIdCookieName, stateId, cookieSaveTime, cookiePath, cookieDomain, true);
+		request.cookieWrite(stateIdValStringCookieName, buildCookieValString(request, stateId), cookieSaveTime, cookiePath, cookieDomain, true);
+		request.generateTokenMark(true, token);
 		logined=true;
 
 		if (isVirtualUser) {
 			authLogger.warn("AuthClient Virtual User Login /////////////////////////////////////////////////////////////////////////////////");
 		}
-		authLogger.info("AuthClient Login  {} State -  ip:{} data:userId={}; name={}; dpmName={}; loginIP={}; loginTime={}; loginCount={}; stateId={}", authType, controller.request.getRemoteAddr(), state.userId, state.userName, state.dpmName, state.loginIP, state.loginTime, state.loginCount, state.stateId);
+		authLogger.info("AuthClient Login  {} State -  ip:{} data:userId={}; name={}; dpmName={}; loginIP={}; loginTime={}; loginCount={}; stateId={}", authType, request.getRemoteAddr(), state.userId, state.userName, state.dpmName, state.loginIP, state.loginTime, state.loginCount, state.stateId);
 		
 		return "success";
 	}
 	
 	private String generateSwapKey() {
-		String swapKey=Utils.md5(controller.request.getSessionId());
-		controller.request.sessionWrite(SWAP_KEY_SESSION_NAME, swapKey);
+		String swapKey=Utils.md5(request.getSessionId());
+		request.sessionWrite(SWAP_KEY_SESSION_NAME, swapKey);
 		return swapKey;
 	}
 

@@ -16,7 +16,7 @@ public class AuthedControllerBase extends MvcControllerBase {
 		}
 		String authPath=auth.getAuthPath();
 		int index=auth.getAuthPath().lastIndexOf("/");
-		rootMap.put("auth", auth.getAuthInfoMap());
+		rootMap.put("auth", auth.getInfoMap());
 		rootMap.put("auth_path", authPath);
 		rootMap.put("auth_path_base", index!=-1 ? authPath.substring(0, index)  : authPath);
 	}

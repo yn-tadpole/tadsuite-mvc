@@ -27,6 +27,10 @@ public abstract class AuthClient {
 		AuthClientConfig config=Application.getAuthClientMap().get(authAppId);
 		AuthClient auth;
 		
+		if (config==null) {
+			throw new RuntimeException("AuthClient - Config lost for '"+authAppId+"'.");
+		}
+		
 		if (config.authType.equals("Simple")) {
 			auth=new AuthSimpleClient(config, controller, false);
 			
