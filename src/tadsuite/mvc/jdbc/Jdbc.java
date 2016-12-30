@@ -1145,4 +1145,12 @@ public class Jdbc {
 		return this;
 	}
 	
+	public void setIgnoreLogging(boolean ignoreLogging) {
+		executor.ignoreLogging=ignoreLogging;
+	}
+	
+	public boolean isIgnoreLogging() {
+		return executor.ignoreLogging;
+	}
+	
 }
