@@ -27,6 +27,7 @@ public class WebSecurityFirewall {
 			if (url.startsWith(rule.prefix) && url.endsWith(rule.suffix)) {
 				foundRule=true;
 				checkSecurityOption(rule.checkOptions, request);
+				break;
 			}
 		}
 		// default rule
