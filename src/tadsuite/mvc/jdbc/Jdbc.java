@@ -868,6 +868,10 @@ public class Jdbc {
 		return executor.getNumString(index);
 	}
 
+	public String getNumString(String index, String format) {
+		return executor.getNumString(index, format);
+	}
+
 	public String getDateString(String index, String format) {
 		return executor.getDateString(index, format);
 	}
