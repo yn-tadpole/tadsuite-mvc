@@ -32,6 +32,7 @@ public class JdbcParams extends LinkedHashMap<String, Object> {
 	public JdbcParams putFromRequest(String paramsArrayString, MvcRequest request, MAP_POLICY colNameMapPolicy) {
 		int optionMarkNum=0;
 		int i=0, j=0;
+		/*option中也可能出现“,”所以不能使用split*/
 		for (; j<paramsArrayString.length(); j++) {//
 			char c=paramsArrayString.charAt(j);
 			if (c=='[') {
@@ -42,28 +43,24 @@ public class JdbcParams extends LinkedHashMap<String, Object> {
 			if (optionMarkNum==0 && c==',') {//seperator
 				String key=paramsArrayString.substring(i, j).trim();
 				i=j+1;
-				if (key.length()>0) {
-					String parameterName=NameMapper.convertName(key.substring(key.lastIndexOf("]")+1), colNameMapPolicy);
-					put(key, request.readInput(parameterName));
-				}
+				putFromInput(request, key, colNameMapPolicy);
 			}
 		}
 		if (i<paramsArrayString.length()) {
 			String lastKey=paramsArrayString.substring(i).trim();
-			if (lastKey.length()>0) {
-				String parameterName=NameMapper.convertName(lastKey.substring(lastKey.lastIndexOf("]")+1), colNameMapPolicy);
-				put(lastKey, request.readInput(parameterName));
-			}
+			putFromInput(request, lastKey, colNameMapPolicy);
 		}
-		/*option中也可能出现“,”所以不能使用split
-		for (String key : paramsArrayString.split(",")) {
-			key=key.trim();
-			if (key.length()>0) {
-				String parameterName=NameMapper.convertName(key.substring(key.lastIndexOf("]")+1), colNameMapPolicy);
-				put(key, request.readInput(parameterName));
-			}
-		}*/
 		return this;
+	}
+	
+	private void putFromInput(MvcRequest request, String key, MAP_POLICY colNameMapPolicy) {
+		if (key.length()>0) {//key即可能包含JdbcParams.put的语法（[xxx]name），也可能包含MvcRequest.readInput的语法（name:xxx）
+			int x=key.lastIndexOf("]");
+			int y=key.lastIndexOf(":");
+			String jdbcParamName=y!=-1 && y>x ? key.substring(0, y) : key;
+			String formFieldName=key.substring(x+1);
+			put(jdbcParamName, request.readInput(NameMapper.convertName(formFieldName, colNameMapPolicy)));
+		}
 	}
 	
 	/**
@@ -105,9 +102,9 @@ public class JdbcParams extends LinkedHashMap<String, Object> {
 	public JdbcParams put(String key, String value) {
 		int x=key.lastIndexOf("]");
 		String type=x!=-1 ? key.substring(0, x).trim().toLowerCase()  : "[string";
-		String paramName=x!=-1 ? key.substring(x+1)  : key;
 		int y=type.indexOf(",");
 		String pattern=y!=-1 ? type.substring(y+1) : "";
+		String paramName=x!=-1 ? key.substring(x+1)  : key;
 		
 		if (type.startsWith("[string")) {
 			if (pattern.length()>0) {//[string,x] 格式，可限制长度
@@ -117,7 +114,7 @@ public class JdbcParams extends LinkedHashMap<String, Object> {
 						value=value.substring(0, max);
 					}
 				} else {//否则按正则表达式处理
-					if (!Utils.regi(paramName, value)) {
+					if (!Utils.regi(pattern, value)) {
 						value="";
 					}
 				}
@@ -164,7 +161,7 @@ public class JdbcParams extends LinkedHashMap<String, Object> {
 			if (value instanceof String) {
 				put(key, (String)value);
 				
-			} else if (value instanceof Date) {
+			} else if (value instanceof java.util.Date || value instanceof java.sql.Date) {
 				putDate(key, (Date)value);
 				
 			} else if (value instanceof Double) {
@@ -304,7 +301,15 @@ public class JdbcParams extends LinkedHashMap<String, Object> {
 	}
 
 	public boolean hasValue(String paramName) {
-		return containsKey(paramName);
+		return containsKey(paramName) && get(paramName)!=null;
+	}
+	
+	public boolean notNull(String paramName) {
+		return hasValue(paramName);
+	}
+	
+	public boolean isNull(String paramName) {
+		return !hasValue(paramName);
 	}
 
 	public Object getValue(String paramName) {

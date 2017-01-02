@@ -37,7 +37,9 @@ public class ClassMapper {
 
 		int lastSeperator=path.lastIndexOf("/");
 		int lastDot=path.lastIndexOf(".");
+		String extension="";
 		if (lastDot>lastSeperator) {//最后一个“/”后面还有一个“.”（即扩展名），去除它
+			extension=path.substring(lastDot);
 			path=path.substring(0, lastDot);
 		}
 
@@ -80,7 +82,7 @@ public class ClassMapper {
 		
 		String className=clazz.toString();
 		String basePath=path.substring(0, path.lastIndexOf("/")+1);
-		String rewriteURL=path.substring(path.lastIndexOf("/")+1);
+		String rewriteURL=path.substring(path.lastIndexOf("/")+1)+extension;
 		return mappingClass(rule, url, basePath, rewriteURL, className, methodName);
 	}
 	
@@ -91,9 +93,14 @@ public class ClassMapper {
 	 * @param methodName
 	 */
 	private static ClassMappingResult mappingClass(ClassMappingRule rule, String url, String basePath, String rewriteURL, String className, String methodName) {
-		if (className.length()>rule.classPackage.length() && Utils.regi("^[a-z_]{1}([a-z_0-9]{0,}[\\.]){1,}[A-Z]{1}[a-z0-9A-Z_]{0,}$", className)) {
+		if (className.length()>rule.classPackage.length()) {
 			boolean isRuterClass=className.endsWith(Application.getRouterClassName());
 			try {
+				if (className.length()>200 || !Utils.regi("^[a-z_]{1}([a-z_0-9]{0,}[\\.]){1,}[A-Z]{1}[a-z0-9A-Z_]{0,}$", className)) {
+					//格式不正确的不要尝试加载Calss，防止意外的注入或溢出
+					throw new ClassNotFoundException();
+				}
+				
 				Class clazz = Class.forName(className);
 				
 				ClassMappingResult mappingItem=new ClassMappingResult();

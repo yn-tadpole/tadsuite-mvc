@@ -17,7 +17,7 @@ public abstract class MvcBase {
 	public static final String RESULT_INFO="INFO";
 	public static final String RESULT_LOGIN="LOGIN";
 	public static final String RESULT_END="END";
-	//异步调用，不再支持此项。public static final String RESULT_BYPASS="BYPASS";
+	public static final String RESULT_BYPASS="BYPASS";
 	
 	
 	private long timer=0;
