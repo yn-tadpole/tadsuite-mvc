@@ -21,12 +21,14 @@ import tadsuite.mvc.utils.Utils;
 
 public class DataSourceManager {
 		
+	private static ConcurrentHashMap<String, DruidDataSource> druidDataSourcePool=new ConcurrentHashMap<String, DruidDataSource>();
+	
 	public static DataSourceConfig lookupDefaultDataSourceConfig() {
 		return Application.getDataSourceMap().get(Application.getDefaultDataSourceName());
 	}
 	
-	public static DataSourceConfig lookupDataSourceConfig(String name) {
-		return Application.getDataSourceMap().get(name);
+	public static DataSourceConfig lookupDataSourceConfig(String configItemName) {
+		return Application.getDataSourceMap().get(configItemName);
 	}
 	
 	public static DataSource lookupDataSource(DataSourceConfig config) {
@@ -38,14 +40,25 @@ public class DataSourceManager {
 		}
 	}
 	
-	private static DataSource lookupJndiDataSource(String name) {
+	public static DataSource lookupDataSource(String url, String username, String password, String type) {
+		DataSourceConfig config=new DataSourceConfig();
+		config.name="DS"+Utils.md5(url+username+password+type);
+		config.dbType=type;
+		config.property.put("url", url);
+		config.property.put("username", username);
+		config.property.put("password", password);
+		config.property.put("wallFilterRule", "all");
+		return lookupDruidDataSource(config);
+	}
+	
+	public static DataSource lookupJndiDataSource(String jndiName) {
 		Context ctx=null;
 		try {
 			ctx = new InitialContext();
-			return (DataSource) ctx.lookup(name);
+			return (DataSource) ctx.lookup(jndiName);
 		} catch (NamingException e) {
 			try {
-				return (DataSource) ctx.lookup("java:comp/env/"+name); //兼容Tomcat
+				return (DataSource) ctx.lookup("java:comp/env/"+jndiName); //兼容Tomcat
 			} catch (Exception e2) {
 				return null;
 			}
@@ -60,9 +73,7 @@ public class DataSourceManager {
 		}
 	}
 	
-	private static ConcurrentHashMap<String, DruidDataSource> druidDataSourcePool=new ConcurrentHashMap<String, DruidDataSource>();
-	
-	private static DataSource lookupDruidDataSource(DataSourceConfig config) {
+	public static DataSource lookupDruidDataSource(DataSourceConfig config) {
 		if (druidDataSourcePool.containsKey(config.name)) {
 			return druidDataSourcePool.get(config.name);
 		}

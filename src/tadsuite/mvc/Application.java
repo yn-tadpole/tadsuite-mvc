@@ -97,7 +97,7 @@ public class Application {
 		System.setProperty("logger_name_logic_mgr", Constants.LOGGER_NAME_LOGIC_MGR);
 		System.setProperty("logger_name_logic_app", Constants.LOGGER_NAME_LOGIC_APP);
 		System.setProperty("logger_name_error", Constants.LOGGER_NAME_ERROR);
-		System.setProperty("logger_name_jdbc", Constants.LOGGER_NAME_Jdbc);
+		System.setProperty("logger_name_jdbc", Constants.LOGGER_NAME_JDBC);
 		System.setProperty("logger_name_performance", Constants.LOGGER_NAME_PERFORMANCE);
 		System.setProperty("logger_name_security", Constants.LOGGER_NAME_SECURITY);
 		
@@ -337,7 +337,6 @@ public class Application {
 				config.tablePrefix=dataSource.getAttribute("tablePrefix");
 				config.dbType=dataSource.getAttribute("dbType");
 				config.jndiName=dataSource.getAttribute("jndiName");
-				config.property=new LinkedHashMap<String, String>();
 				
 				NodeList propertyList=dataSource.getElementsByTagName("property");
 				for (int j=0; j<propertyList.getLength(); j++) {
@@ -363,7 +362,6 @@ public class Application {
 					AuthClientConfig config=new AuthClientConfig();
 					config.authAppId=authClient.getAttribute("authAppId");
 					config.authType=authClient.getAttribute("authType");
-					config.property=new LinkedHashMap<String, String>();
 					
 					NodeList propertyList=authClient.getElementsByTagName("property");
 					for (int j=0; j<propertyList.getLength(); j++) {

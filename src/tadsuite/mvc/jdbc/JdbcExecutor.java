@@ -75,6 +75,7 @@ public class JdbcExecutor {
 	private Logger JdbcExecutorLogger;
 	public boolean ignoreLogging=false;
 	
+	//测试发现父JdbcExecutor的result赋值会干扰子result的结果，未查明是Druid的BUG还是JDBC的BUG
 	private ArrayList<JdbcExecutor> chlidrenList=new ArrayList<>();
 
 	public JdbcExecutor() {
@@ -103,23 +104,13 @@ public class JdbcExecutor {
 	 */
 	public JdbcExecutor clone() {
 		JdbcExecutor newObject=new JdbcExecutor(datasource, dbType, tablePrefix);
-		chlidrenList.add(newObject);
+		chlidrenList.add(newObject);////测试发现父JdbcExecutor的result赋值会干扰子result的结果，未查明是Druid的BUG还是JDBC的BUG
 		return newObject;
 	}
 	
+	////测试发现父JdbcExecutor的result赋值会干扰子result的结果，未查明是Druid的BUG还是JDBC的BUG
 	public void attachChildExecutor(JdbcExecutor executor) {
 		chlidrenList.add(executor);
-	}
-	
-	/**
-	 * 指定数据源，再创建一个对象，并与当前对象建立关联（当前对象关闭时将自动关闭）
-	 * 将使用不同的Connection及Statement等对象
-	 * @param source
-	 * @param dbType
-	 * @return
-	 */
-	public JdbcExecutor create(DataSource datasource, String dbType) {
-		return create(datasource, dbType, "");
 	}
 	
 	/**
@@ -137,6 +128,17 @@ public class JdbcExecutor {
 	
 	/**
 	 * 指定数据源，再创建一个对象，并与当前对象建立关联（当前对象关闭时将自动关闭）
+	 * 将使用不同的Connection及Statement等对象
+	 * @param source
+	 * @param dbType
+	 * @return
+	 */
+	public JdbcExecutor create(DataSource datasource, String dbType) {
+		return create(datasource, dbType, "");
+	}
+	
+	/**
+	 * 指定数据源，再创建一个对象，并与当前对象建立关联（当前对象关闭时将自动关闭）
 	 * @param tablePrefix
 	 * @param source
 	 * @param dbType
@@ -144,7 +146,7 @@ public class JdbcExecutor {
 	 */
 	private JdbcExecutor create(DataSource datasource, String dbType, String tablePrefix) {
 		JdbcExecutor newObject=new JdbcExecutor(datasource, dbType, tablePrefix);
-		chlidrenList.add(newObject);
+		chlidrenList.add(newObject);////测试发现父JdbcExecutor的result赋值会干扰子result的结果，未查明是Druid的BUG还是JDBC的BUG
 		return newObject;
 	}
 	
@@ -153,7 +155,7 @@ public class JdbcExecutor {
 		this.tablePrefix=tablePrefix;
 		this.dbType=dbType;
 		bConnected=false;
-		JdbcExecutorLogger=LogFactory.getLogger(Constants.LOGGER_NAME_Jdbc);
+		JdbcExecutorLogger=LogFactory.getLogger(Constants.LOGGER_NAME_JDBC);
 	}
 
 	public JdbcExecutor connect() {
@@ -180,7 +182,6 @@ public class JdbcExecutor {
 				child.close();
 			}
 		}
-		
 		bConnected=false;
 		
 		if (result!=null) {
@@ -357,8 +358,8 @@ public class JdbcExecutor {
 		querySQL=parseSqlForTablePrefix(strSQL, tablePrefix);
 		connect();
 		try {
-			if (result!=null) {
-				result.close();									result=null;
+			if (this.result!=null) {
+				this.result.close();									this.result=null;
 			}
 			if (query!=null) {
 				query.clearBatch();						query.close();							query=null;

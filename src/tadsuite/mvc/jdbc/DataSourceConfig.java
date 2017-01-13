@@ -8,5 +8,5 @@ public class DataSourceConfig {
 	public String dbType;
 	public String tablePrefix;
 	public String jndiName;
-	public LinkedHashMap<String, String> property;
+	public LinkedHashMap<String, String> property=new LinkedHashMap<String, String>();
 }

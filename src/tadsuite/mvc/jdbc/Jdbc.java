@@ -80,6 +80,30 @@ public class Jdbc {
 	}
 	
 	/**
+	 * 再创建一个对象，并与当前对象建立关联（当前对象关闭时将自动关闭）
+	 * @param dataSourceConfigName
+	 * @param tablePrefix
+	 * @return
+	 */
+	public Jdbc create(DataSource datasource, String dbType) {
+		Jdbc newObject=new Jdbc(executor.create(datasource, dbType));
+		return newObject;
+	}
+
+	
+	/**
+	 * 再创建一个对象，并与当前对象建立关联（当前对象关闭时将自动关闭）
+	 * @param dataSourceConfigName
+	 * @param tablePrefix
+	 * @return
+	 */
+	public Jdbc create(DataSource datasource, String dbType, String tablePrefix) {
+		Jdbc newObject=new Jdbc(executor.create(datasource, dbType));
+		newObject.setTablePrefix(tablePrefix);
+		return newObject;
+	}
+	
+	/**
 	 * 注意：执行SQL的所有方法中只有query方法不即时关闭连接，其它执行SQL的方法都将自动关闭连接
 	 */
 	public void close() {
