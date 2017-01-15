@@ -75,7 +75,7 @@ public class JdbcExecutor {
 	private Logger JdbcExecutorLogger;
 	public boolean ignoreLogging=false;
 	
-	//测试发现父JdbcExecutor的result赋值会干扰子result的结果，未查明是Druid的BUG还是JDBC的BUG
+	//TODO
 	private ArrayList<JdbcExecutor> chlidrenList=new ArrayList<>();
 
 	public JdbcExecutor() {
@@ -104,13 +104,23 @@ public class JdbcExecutor {
 	 */
 	public JdbcExecutor clone() {
 		JdbcExecutor newObject=new JdbcExecutor(datasource, dbType, tablePrefix);
-		chlidrenList.add(newObject);////测试发现父JdbcExecutor的result赋值会干扰子result的结果，未查明是Druid的BUG还是JDBC的BUG
+		chlidrenList.add(newObject);
 		return newObject;
 	}
 	
-	////测试发现父JdbcExecutor的result赋值会干扰子result的结果，未查明是Druid的BUG还是JDBC的BUG
 	public void attachChildExecutor(JdbcExecutor executor) {
 		chlidrenList.add(executor);
+	}
+	
+	/**
+	 * 指定数据源，再创建一个对象，并与当前对象建立关联（当前对象关闭时将自动关闭）
+	 * 将使用不同的Connection及Statement等对象
+	 * @param source
+	 * @param dbType
+	 * @return
+	 */
+	public JdbcExecutor create(DataSource datasource, String dbType) {
+		return create(datasource, dbType, "");
 	}
 	
 	/**
@@ -128,17 +138,6 @@ public class JdbcExecutor {
 	
 	/**
 	 * 指定数据源，再创建一个对象，并与当前对象建立关联（当前对象关闭时将自动关闭）
-	 * 将使用不同的Connection及Statement等对象
-	 * @param source
-	 * @param dbType
-	 * @return
-	 */
-	public JdbcExecutor create(DataSource datasource, String dbType) {
-		return create(datasource, dbType, "");
-	}
-	
-	/**
-	 * 指定数据源，再创建一个对象，并与当前对象建立关联（当前对象关闭时将自动关闭）
 	 * @param tablePrefix
 	 * @param source
 	 * @param dbType
@@ -146,7 +145,7 @@ public class JdbcExecutor {
 	 */
 	private JdbcExecutor create(DataSource datasource, String dbType, String tablePrefix) {
 		JdbcExecutor newObject=new JdbcExecutor(datasource, dbType, tablePrefix);
-		chlidrenList.add(newObject);////测试发现父JdbcExecutor的result赋值会干扰子result的结果，未查明是Druid的BUG还是JDBC的BUG
+		chlidrenList.add(newObject);
 		return newObject;
 	}
 	
@@ -155,7 +154,7 @@ public class JdbcExecutor {
 		this.tablePrefix=tablePrefix;
 		this.dbType=dbType;
 		bConnected=false;
-		JdbcExecutorLogger=LogFactory.getLogger(Constants.LOGGER_NAME_JDBC);
+		JdbcExecutorLogger=LogFactory.getLogger(Constants.LOGGER_NAME_Jdbc);
 	}
 
 	public JdbcExecutor connect() {
@@ -182,6 +181,7 @@ public class JdbcExecutor {
 				child.close();
 			}
 		}
+		
 		bConnected=false;
 		
 		if (result!=null) {
@@ -358,8 +358,8 @@ public class JdbcExecutor {
 		querySQL=parseSqlForTablePrefix(strSQL, tablePrefix);
 		connect();
 		try {
-			if (this.result!=null) {
-				this.result.close();									this.result=null;
+			if (result!=null) {
+				result.close();									result=null;
 			}
 			if (query!=null) {
 				query.clearBatch();						query.close();							query=null;
@@ -1924,7 +1924,7 @@ public class JdbcExecutor {
 			sb.append("<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><form name=\"pgSelectForm\" method=\"get\" action=\"\"><tr><td style=\"height:18pt; line-height:13pt;\">共"+ rowTotal+ "  条信息 第 "+ pgCurrent+ " 页 共 "+ pgCount+ " 页 <input type=button onclick=\"location='"+ strURL.replaceAll("__pgCurrent__", ""+ (pgCurrent - 1))+ "'\" value=上一页 style=\"border:#cccccc 1px solid; background-color:transparent; height:16pt\" class=showpg> <input type=button onclick=\"location='"+ strURL.replaceAll("__pgCurrent__", ""+(pgCurrent + 1))+ "'\" value=下一页 class=showpg style=\"border:#cccccc 1px solid; background-color:transparent; height:16pt\"> 跳到 ");
 			sb.append("<input type=text size=2 id=pgSelectFormPgCurrent name=pgSelectFormPgCurrent style=\"border:#cccccc 1px solid; background-color:transparent; height:16pt\"> <input type=button name=Submit onClick=\"location='"+ strURL.replaceAll("__pgCurrent__","'+this.form.pgSelectFormPgCurrent.value+'")+ "'\" value=GO style='border:#cccccc 1px solid; background-color:transparent;font-family:arial; height:16pt'></td></form></tr></table>");
 		} else if (style == 2) {
-			sb.append("<a href='"+ strURL.replaceAll("__pgCurrent__", "1")+ "'>首页</a> <a href='"+ strURL.replaceAll("__pgCurrent__", ""+(pgCurrent - 1))+ "'>上页</a> "+ pgCurrent+ " / "+ pgCount+ " ("+ rowTotal+ ") <a href='"+ strURL.replaceAll("__pgCurrent__", ""+(pgCurrent + 1))+ "'>下页</a> <a href='"+ strURL.replaceAll("__pgCurrent__", "-1")+ "'>尾页</a></font>");
+			sb.append("<a class='first-page' href='"+ strURL.replaceAll("__pgCurrent__", "1")+ "'>首页</a> <a class='prev-page' href='"+ strURL.replaceAll("__pgCurrent__", ""+(pgCurrent - 1))+ "'>上页</a> <span class='current-page'>"+ pgCurrent+ "</span> / "+ pgCount+ " <span class='total-pages'>"+ rowTotal+ "</span> <a class='next-page' href='"+ strURL.replaceAll("__pgCurrent__", ""+(pgCurrent + 1))+ "'>下页</a> <a class='last-page' href='"+ strURL.replaceAll("__pgCurrent__", "-1")+ "'>尾页</a></font>");
 		} else {
 			int i = pgCurrent - 5;
 			if (i + 10 >= pgCount) {
@@ -1933,20 +1933,20 @@ public class JdbcExecutor {
 			if (i < 1) {
 				i = 1;
 			} else {
-				sb.append(" <a href='"+ strURL.replaceAll("__pgCurrent__", ""+((i - 5 > 0) ? i - 5 : 1)) + "'><b>...</b></a> ");
+				sb.append(" <a class='pages prev-pages' href='"+ strURL.replaceAll("__pgCurrent__", ""+((i - 5 > 0) ? i - 5 : 1)) + "'><b>...</b></a> ");
 			}
 			int j = i + 10;
 			for (; i <= j && i <= pgCount; i++) {
 				if (i != pgCurrent) {
-					sb.append(" <a href='"+ strURL.replaceAll("__pgCurrent__", ""+i)+ "'><b>" + i + "</b></a> ");
+					sb.append(" <a class='pages goto-pages' href='"+ strURL.replaceAll("__pgCurrent__", ""+i)+ "'><b>" + i + "</b></a> ");
 				} else {
-					sb.append(" <b><font color=#ff0000>" + i + "</font></b> ");
+					sb.append(" <b><span class='pages current-page'><font color=#ff0000>" + i + "</font></span></b> ");
 				}
 			}
 			if (j < pgCount) {
-				sb.append(" <a href='"+ strURL.replaceAll("__pgCurrent__",""+((j + 5 <= pgCount) ? j + 5 : pgCount)) + "'><b>...</b></a> ");
+				sb.append(" <a class='pages next-pages' href='"+ strURL.replaceAll("__pgCurrent__",""+((j + 5 <= pgCount) ? j + 5 : pgCount)) + "'><b>...</b></a> ");
 			}
-			sb.append("  [第<b>" + pgCurrent + "</b>页/<b>共" + pgCount+ "页</b> (共<b>" + rowTotal + "</b>条信息)] 点击数字跳到相应的页");
+			sb.append("  <span class='pages-text'>第<span class='current-page-inline'><b>" + pgCurrent + "</b></span>页/共<span class='total-pages-inline'><b>" + pgCount+ "</span></b>页 (共<span class='total-rows-inline'><b>" + rowTotal + "</b></span>条信息)</span>");
 		}
 		String value=sb.toString();
 		sb.delete(0, sb.length());

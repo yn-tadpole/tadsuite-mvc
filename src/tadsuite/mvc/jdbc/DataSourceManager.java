@@ -21,16 +21,14 @@ import tadsuite.mvc.utils.Utils;
 
 public class DataSourceManager {
 		
-	private static ConcurrentHashMap<String, DruidDataSource> druidDataSourcePool=new ConcurrentHashMap<String, DruidDataSource>();
-	
 	public static DataSourceConfig lookupDefaultDataSourceConfig() {
 		return Application.getDataSourceMap().get(Application.getDefaultDataSourceName());
 	}
 	
-	public static DataSourceConfig lookupDataSourceConfig(String configItemName) {
-		return Application.getDataSourceMap().get(configItemName);
+	public static DataSourceConfig lookupDataSourceConfig(String name) {
+		return Application.getDataSourceMap().get(name);
 	}
-	
+
 	public static DataSource lookupDataSource(DataSourceConfig config) {
 		if (config.jndiName.length()>0) {
 			return lookupJndiDataSource(config.jndiName);
@@ -39,26 +37,19 @@ public class DataSourceManager {
 			return lookupDruidDataSource(config);
 		}
 	}
-	
-	public static DataSource lookupDataSource(String url, String username, String password, String type) {
-		DataSourceConfig config=new DataSourceConfig();
-		config.name="DS"+Utils.md5(url+username+password+type);
-		config.dbType=type;
-		config.property.put("url", url);
-		config.property.put("username", username);
-		config.property.put("password", password);
-		config.property.put("wallFilterRule", "all");
-		return lookupDruidDataSource(config);
+
+	public static DataSource lookupDataSource(String jndiName) {
+		return lookupJndiDataSource(jndiName);
 	}
 	
-	public static DataSource lookupJndiDataSource(String jndiName) {
+	private static DataSource lookupJndiDataSource(String name) {
 		Context ctx=null;
 		try {
 			ctx = new InitialContext();
-			return (DataSource) ctx.lookup(jndiName);
+			return (DataSource) ctx.lookup(name);
 		} catch (NamingException e) {
 			try {
-				return (DataSource) ctx.lookup("java:comp/env/"+jndiName); //兼容Tomcat
+				return (DataSource) ctx.lookup("java:comp/env/"+name); //兼容Tomcat
 			} catch (Exception e2) {
 				return null;
 			}
@@ -73,7 +64,60 @@ public class DataSourceManager {
 		}
 	}
 	
-	public static DataSource lookupDruidDataSource(DataSourceConfig config) {
+	private static ConcurrentHashMap<String, DruidDataSource> druidDataSourcePool=new ConcurrentHashMap<String, DruidDataSource>();
+
+	
+	public static DataSource lookupDataSource(String url, String username, String password, String dbType) {
+		String name="DS"+Utils.md5(url+username+password+dbType);
+		if (druidDataSourcePool.containsKey(name)) {
+			return druidDataSourcePool.get(name);
+		}
+		synchronized (druidDataSourcePool) {
+			if (druidDataSourcePool.containsKey(name)) {
+				return druidDataSourcePool.get(name);
+			}
+			
+			DruidDataSource datasource=new DruidDataSource();
+			datasource.setUrl(url);
+			datasource.setUsername(username);
+			datasource.setPassword(password);
+			datasource.setInitialSize(1);
+			datasource.setMaxActive(3);
+			datasource.setMaxWait(60000);
+			datasource.setTimeBetweenEvictionRunsMillis(60000);
+			datasource.setMinEvictableIdleTimeMillis(60000);
+			datasource.setMaxEvictableIdleTimeMillis(600000);
+			
+			WallConfig wallConfig=new WallConfig();			
+			wallConfig.setMultiStatementAllow(true);
+			wallConfig.setStrictSyntaxCheck(false);
+			wallConfig.setCommentAllow(true);//commentAllow 	false 	是否允许语句中存在注释，Oracle的用户不用担心，Wall能够识别hints和注释的区别	
+			wallConfig.setDeleteWhereNoneCheck(true);//deleteWhereNoneCheck 	false 	检查DELETE语句是否无where条件，这是有风险的，但不是SQL注入类型的风险
+			wallConfig.setUpdateWhereNoneCheck(true);//updateWhereNoneCheck 	false 	检查UPDATE语句是否无where条件，这是有风险的，但不是SQL注入类型的风险
+			wallConfig.setConditionAndAlwayTrueAllow(true);//conditionAndAlwayTrueAllow 	false 	检查查询条件(WHERE/HAVING子句)中是否包含AND永真条件
+			wallConfig.setConditionAndAlwayFalseAllow(true);//conditionAndAlwayFalseAllow 	false 	检查查询条件(WHERE/HAVING子句)中是否包含AND永假条件
+			wallConfig.setConditionDoubleConstAllow(true);
+			
+			WallFilter wallFilter=new WallFilter();
+			wallFilter.setConfig(wallConfig);
+			wallFilter.setDbType(dbType);
+			
+			StatFilter statFilter=new StatFilter();
+			LogAdapterForDuridFilter logFiler=new LogAdapterForDuridFilter();						
+			
+			List<Filter> filters=new ArrayList<Filter>();
+			filters.add(wallFilter);
+			filters.add(logFiler);
+			filters.add(statFilter);
+			
+			datasource.setProxyFilters(filters);
+			
+			druidDataSourcePool.put(name, datasource);
+			return datasource;
+		}
+	}
+	
+	private static DataSource lookupDruidDataSource(DataSourceConfig config) {
 		if (druidDataSourcePool.containsKey(config.name)) {
 			return druidDataSourcePool.get(config.name);
 		}

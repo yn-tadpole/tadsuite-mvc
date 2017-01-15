@@ -32,8 +32,8 @@ public class Jdbc {
 		executor=new JdbcExecutor();
 	}
 	
-	public Jdbc(String dataSourceName) {
-		executor=new JdbcExecutor(dataSourceName);
+	public Jdbc(String dataSourceConfigName) {
+		executor=new JdbcExecutor(dataSourceConfigName);
 	}
 	
 	public Jdbc(DataSource datasource, String dbType) {
@@ -75,6 +75,17 @@ public class Jdbc {
 	 */
 	public Jdbc create(String dataSourceConfigName, String tablePrefix) {
 		Jdbc newObject=new Jdbc(executor.create(dataSourceConfigName));
+		newObject.setTablePrefix(tablePrefix);
+		return newObject;
+	}
+
+	public Jdbc create(DataSource datasource, String dbType) {
+		Jdbc newObject=new Jdbc(executor.create(datasource, dbType));
+		return newObject;
+	}
+	
+	public Jdbc create(DataSource datasource, String dbType, String tablePrefix) {
+		Jdbc newObject=new Jdbc(executor.create(datasource, dbType));
 		newObject.setTablePrefix(tablePrefix);
 		return newObject;
 	}
