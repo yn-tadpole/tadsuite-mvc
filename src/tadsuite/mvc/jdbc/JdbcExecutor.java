@@ -154,7 +154,7 @@ public class JdbcExecutor {
 		this.tablePrefix=tablePrefix;
 		this.dbType=dbType;
 		bConnected=false;
-		JdbcExecutorLogger=LogFactory.getLogger(Constants.LOGGER_NAME_Jdbc);
+		JdbcExecutorLogger=LogFactory.getLogger(Constants.LOGGER_NAME_JDBC);
 	}
 
 	public JdbcExecutor connect() {

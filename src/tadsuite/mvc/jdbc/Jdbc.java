@@ -79,16 +79,6 @@ public class Jdbc {
 		return newObject;
 	}
 
-	public Jdbc create(DataSource datasource, String dbType) {
-		Jdbc newObject=new Jdbc(executor.create(datasource, dbType));
-		return newObject;
-	}
-	
-	public Jdbc create(DataSource datasource, String dbType, String tablePrefix) {
-		Jdbc newObject=new Jdbc(executor.create(datasource, dbType));
-		newObject.setTablePrefix(tablePrefix);
-		return newObject;
-	}
 	
 	/**
 	 * 再创建一个对象，并与当前对象建立关联（当前对象关闭时将自动关闭）

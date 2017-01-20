@@ -220,7 +220,7 @@ public class MvcControllerBase extends MvcBase {
 	 */
 	private final boolean setMvcView(String template, boolean bBindSystemVariables) {
 		if (this.resultSetted) {
-			return false; //throw new RuntimeException("Method 'setMvcView()' can only been called once.");
+			//return false; //throw new RuntimeException("Method 'setMvcView()' can only been called once.");
 		}
 		this.bindSystemVariables=bBindSystemVariables;
 		this.template=template;

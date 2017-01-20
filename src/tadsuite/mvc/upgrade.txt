@@ -19,7 +19,7 @@ import tadsuite.mvc.utils.Utils;
 Utils.sessionRead(controller,	>		controller.request.sessionRead(
 Utils.sessionWrite(controller, 	>		controller.request.sessionWrite(
 
-MvcModalBase-》MvcServiceBase
+MvcModalBase-》 MvcServiceBase
 AuthClient	-》AuthUserState
 MODAL_...	替换为 SERVICE_...
 controller.readInput..	-> request.readInput
