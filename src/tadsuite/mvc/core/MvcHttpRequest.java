@@ -592,5 +592,13 @@ public class MvcHttpRequest implements MvcRequest {
 	public String readLocaleText(String title) {
 		return Application.readLocaleText(getCurrentLocale(), title);
 	}
+	
+	public void setCharacterEncoding(String encoding) {
+		try {
+			httpRequest.setCharacterEncoding(encoding);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 }

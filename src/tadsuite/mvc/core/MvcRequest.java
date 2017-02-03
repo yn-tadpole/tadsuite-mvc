@@ -81,6 +81,8 @@ public interface MvcRequest {
 	public void generateTokenMark(boolean override);
 	public void generateTokenMark(boolean override, String defaultValue);
 	
+	public void setCharacterEncoding(String encoding);
+	
 	public String getCurrentLocale();
 	public String readLocaleText(String title);
 }
