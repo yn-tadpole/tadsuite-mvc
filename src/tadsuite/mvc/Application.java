@@ -212,7 +212,7 @@ public class Application {
 
 			configReadSuccess=true;
 			configReadResultMessage="";
-			//rootLogger.trace("** Reload Configuration File Success, for {} [{}].", systemName, systemTitle);
+			rootLogger.info("** Reload Configuration File Success, for {} [{}].", systemName, systemTitle);
 			
 		} catch (Exception e) {
 			rootLogger.error("** Reload Configuration File Failture, for {} [{}].", systemName, systemTitle);
