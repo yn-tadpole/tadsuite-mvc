@@ -164,6 +164,7 @@ public final class AuthSimpleClient extends AuthClient {
 				state = null;
 				request.sessionDelete(stateSessionName);
 				request.cookieDelete(stateValStringCookieName, cookiePath, cookieDomain);
+				request.sessionReset();
 			}
 		}
 		
