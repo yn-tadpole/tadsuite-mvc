@@ -177,6 +177,13 @@ public final class AuthSimpleClient extends AuthClient {
 				request.cookieDelete(stateIdValStringCookieName, cookiePath, cookieDomain);
 			}
 		}
+		
+
+		if (!logined && controller.unsafeAuthCheck && controller.unsafeAuthStateId!=null && controller.unsafeAuthStateIdValKey!=null) {
+			if (controller.unsafeAuthStateIdValKey.equals(buildUnsafeValString(controller.request, controller.unsafeAuthStateId))) {
+				recoveryUserState(controller.unsafeAuthStateId);
+			}
+		}
 	}
 	
 	/**判断用户是否登录成功，失败则显示登录对话框

@@ -315,6 +315,34 @@ public class JdbcParams extends LinkedHashMap<String, Object> {
 	public Object getValue(String paramName) {
 		return get(paramName);
 	}
+	
+	public String getString(String paramName) {
+		return (String)get(paramName);
+	}
+
+	public long getLong(String paramName) {
+		return hasValue(paramName) ? (Long) get(paramName) : null;
+	}
+	
+	public int getInt(String paramName) {
+		return hasValue(paramName) ? (Integer) get(paramName) : null;
+	}
+	
+	public float getFloat(String paramName) {
+		return hasValue(paramName) ? (Float) get(paramName) : null;
+	}
+	
+	public double getDouble(String paramName) {
+		return hasValue(paramName) ? (Double) get(paramName) : null;
+	}
+
+	public Date getDate(String paramName) {
+		return hasValue(paramName) ? (Date) get(paramName) : null;
+	}
+
+	public BigDecimal putDecimal(String paramName) {
+		return hasValue(paramName) ? (BigDecimal) get(paramName) : null;
+	}
 
 	public int getSqlType(String paramName) {
 		return typeMap.get(paramName);

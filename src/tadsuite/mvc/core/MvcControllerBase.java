@@ -276,9 +276,13 @@ public class MvcControllerBase extends MvcBase {
 	public String readId(String index) {
 		return request.readId(index);
 	}
-	
+
 	public String readLetter(String index) {
 		return request.readLetter(index);
+	}
+
+	public String readText(String index) {
+		return request.readText(index);
 	}
 	
 	public int readInt(String index, int defaultValue) {
