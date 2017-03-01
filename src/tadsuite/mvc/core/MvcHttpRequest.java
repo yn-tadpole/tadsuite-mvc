@@ -297,6 +297,8 @@ public class MvcHttpRequest implements MvcRequest {
 			index=index+":datetime";
 			break;
 		case RAW:
+			index=index+":raw";
+			break;
 		default:
 			break;
 		}
@@ -309,12 +311,12 @@ public class MvcHttpRequest implements MvcRequest {
 	}
 	
 	public String readId(String index) {
-		String value=readInput(index);
+		String value=readInput(index).trim();
 		return Utils.isId(value) ? value : "";
 	}
 
 	public String readLetter(String index) {
-		String value=readInput(index);
+		String value=readInput(index).trim();
 		return Utils.regi("^[a-zA-Z0-9\\-_]{1,100}$", value) ? value : "";
 	}
 
@@ -341,22 +343,22 @@ public class MvcHttpRequest implements MvcRequest {
 	}
 	
 	public int readInt(String index, int defaultValue) {
-		String value=readInput(index);
+		String value=readInput(index).trim();
 		return Utils.parseInt(value!=null ? value.replaceAll(",", "") : "", defaultValue);
 	}
 
 	public long readLong(String index, long defaultValue) {
-		String value=readInput(index);
+		String value=readInput(index).trim();
 		return Utils.parseLong(value!=null ? value.replaceAll(",", "") : "", defaultValue);
 	}
 
 	public float readFloat(String index, float defaultValue) {
-		String value=readInput(index);
+		String value=readInput(index).trim();
 		return Utils.parseFloat(value!=null ? value.replaceAll(",", "") : "", defaultValue);
 	}
 
 	public double readDouble(String index, double defaultValue) {
-		String value=readInput(index);
+		String value=readInput(index).trim();
 		return Utils.parseDouble(value!=null ? value.replaceAll(",", "") : "", defaultValue);
 	}
 		

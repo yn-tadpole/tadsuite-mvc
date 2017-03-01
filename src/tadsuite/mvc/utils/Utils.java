@@ -410,62 +410,19 @@ public class Utils {
 	
 
 	public static String json(Object value) {
-		StringBuilder buffer=new StringBuilder();
-		readJSONItem(value, buffer);
-		return buffer.toString();
+		return JSON.stringfy(value);
 	}
 
 	public static String json(List list) {
-		StringBuilder buffer=new StringBuilder();
-		readJSONItem(list, buffer);
-		return buffer.toString();
+		return JSON.stringfy(list);
 	}
 
 	public static String json(Map map) {
-		StringBuilder buffer=new StringBuilder();
-		readJSONItem(map, buffer);
-		return buffer.toString();
+		return JSON.stringfy(map);
 	}
 	
-	private static boolean readJSONItem(Object object, StringBuilder buffer) {
-		String type=object!=null ? object.getClass().getSimpleName() : "null";
-		if (type.endsWith("Map")) {
-			Map map=(Map) object;
-			int i=0;
-			buffer.append("{");
-			for (Object key : map.keySet()) {
-				buffer.append(i>0 ? ", " : "").append("\"").append(escapeJsonString(key)).append("\" : ");
-				readJSONItem(((Map) object).get(key), buffer);
-				i++;
-			}
-			buffer.append("}");
-			return true;
-		} else if (type.endsWith("List")) {
-			List list=(List) object;
-			buffer.append("[");
-			for (int i=0; i<((List)object).size(); i++) {
-				buffer.append(i>0 ? ", " : "");
-				readJSONItem(list.get(i), buffer);
-			}
-			buffer.append("]");
-			return true;
-		} else if (type.equals("Integer") || type.equals("Long") || type.equals("Float") || type.equals("Double") || type.equals("Decimal")) {
-			buffer.append(type.equals("null") ? "\"\"" : object);
-			return false;
-		} else if (type.equals("Boolean")) {
-			buffer.append((Boolean) object ? "true" : "false");
-			return false;
-		} else if (type.endsWith("Date") || type.endsWith("Timestamp")) {
-			buffer.append("\"").append(Utils.dateFormat(String.valueOf(object), "yyyy-MM-dd HH:mm", "yyyy-MM-dd HH:mm")).append("\"");
-			return false;
-		} else {
-			buffer.append("\"").append(type.equals("null") ? "" : escapeJsonString(object)).append("\"");
-			return false;
-		}
-	}
-	
-	private static String escapeJsonString(Object object) {
-		return String.valueOf(object).replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\n");
+	public static JSON parseJSON(String jsonString) {
+		return JSON.parse(jsonString);
 	}
 	
 	public static String xml(Object object) {
