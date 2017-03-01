@@ -1,5 +1,7 @@
 package tadsuite.mvc.core;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -189,6 +191,29 @@ public class MvcHttpRequest implements MvcRequest {
             params.put(key, getParameter(key));
         }
         return params;
+	}
+	
+	@Override
+	public String readRequestBody() {
+		BufferedReader reader=null;
+		StringBuffer body=new StringBuffer();
+		try {
+			reader=httpRequest.getReader();
+			String input = null;
+	        while((input = reader.readLine()) != null) {
+	        	body.append(input).append("\n");
+	        }
+		} catch (IOException e) {
+		} finally {
+			if (reader!=null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return body.toString();
 	}
 
 	private String checkXss(String name, String value) {
@@ -620,5 +645,6 @@ public class MvcHttpRequest implements MvcRequest {
 			e.printStackTrace();
 		}
 	}
+
 
 }

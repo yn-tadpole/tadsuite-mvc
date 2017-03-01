@@ -425,8 +425,12 @@ public class Utils {
 		return JSON.parse(jsonString);
 	}
 	
-	public static String xml(Object object) {
-		return XML.stringfy(object);
+	public static String xml(Map map) {
+		return Xml.stringfy(map);
+	}
+	
+	public static String xml(List list) {
+		return Xml.stringfy(list);
 	}
 
 	public	 static String md5(String str) {

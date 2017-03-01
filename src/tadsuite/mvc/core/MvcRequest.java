@@ -36,6 +36,8 @@ public interface MvcRequest {
 	public String getRemoteAddr();	
 	public String getLocalAddr();
 	
+	public String readRequestBody();
+	
 	public Object getAttribute(String name);
 	public void setAttribute(String name, Object obj);
 	
