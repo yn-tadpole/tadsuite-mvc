@@ -16,7 +16,7 @@ public class JSON {
 
 	private Object json;
 
-	public JSON(String jsonString) {
+	private JSON(String jsonString) {
 		try {
 			JSONParser parser=new JSONParser(jsonString);
 			json=parser.parse();

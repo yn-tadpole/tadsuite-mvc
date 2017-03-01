@@ -426,43 +426,7 @@ public class Utils {
 	}
 	
 	public static String xml(Object object) {
-		StringBuilder xmlBuffer=new StringBuilder("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<xml>");
-		readXMLItem(object, xmlBuffer, "");
-		xmlBuffer.append("</xml>");
-		return xmlBuffer.toString();
-	}
-
-	private static boolean readXMLItem(Object object, StringBuilder xmlBuffer, String prefix) {
-		String type=object!=null ? object.getClass().getSimpleName() : "null";
-		if (type.equals("String")) {
-			xmlBuffer.append("<![CDATA[").append((String) object).append("]]>");
-			return false;
-		} else if (type.equals("Boolean")) {
-			xmlBuffer.append((Boolean) object ? "true" : "false");
-			return false;
-		} else if (type.endsWith("Map")) {
-			xmlBuffer.append("\n");
-			Map map=(Map) object;
-			for (Object key : map.keySet()) {
-				boolean isValidKey=Utils.regi("^[a-zA-Z]{1}[a-zA-Z0-9_\\-]{0,}$", (String)key);
-				xmlBuffer.append(prefix).append("<").append(isValidKey ? key : "key name=\""+key+"\"").append(">");
-				boolean bWrapRow=readXMLItem(((Map) object).get(key), xmlBuffer, prefix+"	");
-				xmlBuffer.append(bWrapRow ? prefix : "").append("</").append(isValidKey ? key : "key").append(">").append("\n");
-			}
-			return true;
-		} else if (type.endsWith("List")) {
-			xmlBuffer.append("\n");
-			List list=(List) object;
-			for (int i=0; i<((List)object).size(); i++) {
-				xmlBuffer.append(prefix).append("<item index=\"").append(i).append("\">");
-				boolean bWrapRow=readXMLItem(list.get(i), xmlBuffer, prefix+"	");
-				xmlBuffer.append(bWrapRow ? prefix : "").append("</item>").append("\n");
-			}
-			return true;
-		} else {
-			xmlBuffer.append(type.equals("null") ? "" : object.toString());
-			return false;
-		}
+		return XML.stringfy(object);
 	}
 
 	public	 static String md5(String str) {
