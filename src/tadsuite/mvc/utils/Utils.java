@@ -171,9 +171,29 @@ public class Utils {
 		//System.out.println(">>>"+arrayString+">>>>"+sb.toString()+">>>");
 		return sb.toString().split(String.valueOf(seperator));
 	}
-	
 
+	public static String htmlDecode(String txt) {
+		return txt.replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"");
+	}
+	
 	public static String htmlEncode(String txt) {
+		StringBuilder out = new StringBuilder();
+	    for(int i=0, j=txt.length(); i<j; i++) {
+	    	char c = txt.charAt(i);
+	        if(c=='<') {
+	           out.append("&lt;");
+	        } else if (c=='>') {
+	        	 out.append("&gt;");
+	        } else if (c=='"') {
+	        	 out.append("&quot;");
+	        } else {
+	            out.append(c);
+	        }
+	    }
+	    return out.toString();
+	}
+	
+	public static String htmlEncodeSingleLine(String txt) {
 		StringBuilder out = new StringBuilder();
 	    for(int i=0, j=txt.length(); i<j; i++) {
 	    	char c = txt.charAt(i);
@@ -187,6 +207,8 @@ public class Utils {
 	        	 out.append(c);//这是错误的，out.append("&#x27");
 	        } else if (c=='/') {
 	        	 out.append(c);//这是错误的，out.append("&#x2F");
+	        } else if (c=='\n') {
+	        	 out.append(" ");
 	        } else {
 	            out.append(c);
 	        }
@@ -194,10 +216,6 @@ public class Utils {
 	    return out.toString();
 	}
 
-	public static String htmlDecode(String txt) {
-		return txt.replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"");
-	}
-	
 	public static String htmlEncodeWithBr(String txt) {
 		StringBuilder out = new StringBuilder();
 	    for(int i=0, j=txt.length(); i<j; i++) {

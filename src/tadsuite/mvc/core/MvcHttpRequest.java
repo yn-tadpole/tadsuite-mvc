@@ -231,11 +231,8 @@ public class MvcHttpRequest implements MvcRequest {
 			if (name.endsWith(":html")) {
 				return Utils.sanitizeHtml(value);
 				
-			} else if (name.endsWith(":code")) {
+			} else if (name.endsWith(":code") || name.endsWith(":text")) {
 				return Utils.htmlEncodeWithBr(value);
-
-			} else if (name.endsWith(":text")) {
-				return Utils.htmlEncode(value);
 
 			} else if (name.endsWith(":id")) {
 				return Utils.isId(value) ? value : "";
@@ -250,7 +247,7 @@ public class MvcHttpRequest implements MvcRequest {
 				return Utils.isNumber(value) ? value : "";
 
 			} else if (name.endsWith(":letter")) {
-				return Utils.regi("^[a-zA-Z0-9\\-_]$", value) ? value : "";
+				return Utils.regi("^[a-zA-Z0-9\\-_]{1,}$", value) ? value : "";
 				
 			} else if (name.endsWith(":float")) {
 				return Utils.isFloat(value) ? value : "";
@@ -273,7 +270,7 @@ public class MvcHttpRequest implements MvcRequest {
 		if (value.length()>Application.getParameterValueMaxLength()) {
 			value=value.substring(0, Application.getParameterValueMaxLength());
 		}
-		return Utils.htmlEncode(Utils.sanitizeHtml(value));
+		return Utils.htmlEncodeSingleLine(Utils.sanitizeHtml(value));
 	}
 	
 	public String readInput(String index) {
@@ -336,17 +333,19 @@ public class MvcHttpRequest implements MvcRequest {
 	}
 	
 	public String readId(String index) {
-		String value=readInput(index).trim();
-		return Utils.isId(value) ? value : "";
+		return readInput(index, FORMAT.ID);
 	}
 
 	public String readLetter(String index) {
-		String value=readInput(index).trim();
-		return Utils.regi("^[a-zA-Z0-9\\-_]{1,100}$", value) ? value : "";
+		return readInput(index, FORMAT.LETTER);
 	}
 
 	public String readText(String index) {
-		String value=readInput(index);
+		return readInput(index, FORMAT.TEXT);
+	}
+
+	public String readPlainText(String index) {
+		String value=readInput(index, FORMAT.HTML);
 		StringBuffer sb=new StringBuffer();
 		boolean pass=false;
 		for (int i=0; i<value.length(); i++) {

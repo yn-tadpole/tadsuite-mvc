@@ -168,7 +168,7 @@ public class JdbcExecutor {
 			conn =datasource.getConnection();
 			statement = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);//ResultSet.TYPE_SCROLL_INSENSITIVE,	ResultSet.CONCUR_UPDATABLE
 		} catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get connection.", e));
 		}
 		bConnected=true;
@@ -291,10 +291,10 @@ public class JdbcExecutor {
 			return this;
 
 		} catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't execute query.#select(String strSQL):"+strSQL+";", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't execute query.", e));
 		}
 	}
@@ -311,10 +311,10 @@ public class JdbcExecutor {
 			endTiming();
 			return updateRow;
 		} catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't execute query.#update(String strSQL):"+strSQL+";", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't execute query.", e));
 		}
 	}
@@ -336,10 +336,10 @@ public class JdbcExecutor {
 			endTiming();
 			return updateRow;
 		} catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't execute query.#update(String strSQL):"+strSQL+";", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't execute query.", e));
 		}
 	}
@@ -375,10 +375,10 @@ public class JdbcExecutor {
 			}
 			return this;
 		} catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't create query.#createQuery(int pgSize, int pgCurrent, String strSQL):"+querySQL+";", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't create query.", e));
 		}
 	}
@@ -448,10 +448,10 @@ public class JdbcExecutor {
 			return this;
 
 		} catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't execute query.#executeQuery(String strSQL):bUsePageQuery="+bUsePageQuery+"#preparedSQL="+currentSQLString(), e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't execute query.", e));
 		}
 	}
@@ -474,10 +474,10 @@ public class JdbcExecutor {
 			endTiming();
 			return updateRow;
 		} catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't execute query.#executeUpdate();#preparedSQL="+currentSQLString(), e));
 		}  catch (Exception e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't execute query.", e));
 		}
 	}
@@ -529,10 +529,10 @@ public class JdbcExecutor {
 				}
 			}
 		} catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't execute query.#convertSQL(String strSQL):"+querySQL+";", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't execute query.", e));
 		}
 		
@@ -1126,7 +1126,7 @@ public class JdbcExecutor {
 			bindSQLValueMap.put(index, readParamSQLString(DTYPE.NUMSTRING, value));
 			return this;
 		} catch (Exception e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't set parameter#setBigDecimal("+index+", \""+value+"\")"));
 		}
 	}
@@ -1170,7 +1170,7 @@ public class JdbcExecutor {
 			bindSQLValueMap.put(index, readParamSQLString(DTYPE.DATE, value));
 			return this;
 		} catch (Exception e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't set parameter#setInt("+index+", "+value+")"));
 		}
 	}
@@ -1203,7 +1203,7 @@ public class JdbcExecutor {
 			bindSQLValueMap.put(index, readParamSQLString(DTYPE.DECIMAL, value));
 			return this;
 		} catch (Exception e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't set parameter#setDecimal("+index+", "+value+")"));
 		}
 	}
@@ -1281,7 +1281,7 @@ public class JdbcExecutor {
 			bindSQLValueMap.put(index, readParamSQLString(DTYPE.LONG, value));
 			return this;
 		} catch (Exception e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't set parameter#setLong("+index+", "+value+")"));
 		}
 	}
@@ -1357,7 +1357,7 @@ public class JdbcExecutor {
 			bindSQLValueMap.put(index, readParamSQLString(DTYPE.INT, value));
 			return this;
 		} catch (Exception e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't set parameter#setInt("+index+", "+value+")"));
 		}
 	}
@@ -1434,7 +1434,7 @@ public class JdbcExecutor {
 			bindSQLValueMap.put(index, readParamSQLString(DTYPE.DOUBLE, value));
 			return this;
 		} catch (Exception e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't set parameter#setDouble("+index+", "+value+")"));
 		}
 	}
@@ -1506,7 +1506,7 @@ public class JdbcExecutor {
 			bindSQLValueMap.put(index, readParamSQLString(DTYPE.FLOAT, value));
 			return this;
 		} catch (Exception e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't set parameter#setInt("+index+", "+value+")"));
 		}
 	}
@@ -1592,7 +1592,7 @@ public class JdbcExecutor {
 			bindSQLValueMap.put(index, readParamSQLString(DTYPE.STRING, "blob"));
 			return this;
 		} catch (Exception e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't set parameter#setBlob("+index+", ...)"));
 		}
 	}
@@ -1621,7 +1621,7 @@ public class JdbcExecutor {
 			bindSQLValueMap.put(index, readParamSQLString(DTYPE.STRING, "stream"));
 			return this;
 		} catch (Exception e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't set parameter#setBinaryStream("+index+", ...)"));
 		}
 	}
@@ -1662,10 +1662,10 @@ public class JdbcExecutor {
 			String value=result.getString(index);
 			return value!=null ? value : "";
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(int index):result.getString("+index+");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1675,10 +1675,10 @@ public class JdbcExecutor {
 			String value=result.getString(index);
 			return value!=null ? value : "";
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(String index):result.getString(\""+index+"\");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1687,10 +1687,10 @@ public class JdbcExecutor {
 		try {
 			return result.getInt(index);
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(String index):result.getInt(\""+index+"\");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1698,10 +1698,10 @@ public class JdbcExecutor {
 		try {
 			return result.getInt(index);
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(String index):result.getInt(\""+index+"\");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1710,10 +1710,10 @@ public class JdbcExecutor {
 		try {
 			return result.getLong(index);
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(String index):result.getInt(\""+index+"\");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1721,10 +1721,10 @@ public class JdbcExecutor {
 		try {
 			return result.getLong(index);
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(String index):result.getLong(\""+index+"\");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1742,10 +1742,10 @@ public class JdbcExecutor {
 				return value;
 			}
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(String index):result.getString(\""+index+"\");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1760,7 +1760,7 @@ public class JdbcExecutor {
 		}  catch (SQLException e) {
 			return getString(index);
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1769,7 +1769,7 @@ public class JdbcExecutor {
 		try {
 			return Utils.dateFormat(getString(index), "yyyy-MM-dd HH:mm:ss", format);
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1778,10 +1778,10 @@ public class JdbcExecutor {
 		try {
 			return result.getTimestamp(index);//Utils.dateParse(result.getString(index), "yyyy-MM-dd HH:mm:ss:S");
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(String index):result.getDate(\""+index+"\");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1789,10 +1789,10 @@ public class JdbcExecutor {
 		try {
 			return result.getTimestamp(index); //Utils.dateParse(result.getString(index), "yyyy-MM-dd HH:mm:ss:S");
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(String index):result.getDate(\""+index+"\");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1801,10 +1801,10 @@ public class JdbcExecutor {
 		try {
 			return result.getFloat(index);
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(String index):result.getFloat(\""+index+"\");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1813,10 +1813,10 @@ public class JdbcExecutor {
 		try {
 			return result.getFloat(index);
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(String index):result.getFloat(\""+index+"\");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1825,10 +1825,10 @@ public class JdbcExecutor {
 		try {
 			return result.getBinaryStream(index);
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(String index):result.getBinaryStream(\""+index+"\");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1837,10 +1837,10 @@ public class JdbcExecutor {
 		try {
 			return result.getBinaryStream(index);
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(String index):result.getBinaryStream(\""+index+"\");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1849,10 +1849,10 @@ public class JdbcExecutor {
 		try {
 			return result.getBlob(index);
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(String index):result.getBlob(\""+index+"\");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1861,10 +1861,10 @@ public class JdbcExecutor {
 		try {
 			return result.getBlob(index);
 		}  catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data#get(String index):result.getBlob(\""+index+"\");", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't get data", e));
 		}
 	}
@@ -1876,10 +1876,10 @@ public class JdbcExecutor {
 		try {
 			return result.next();
 		} catch (SQLException e) {
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't read row#readRow():result.getRow();", e));
 		}  catch (Exception e){
-			JdbcExecutorLogger.catching(e);
+			//JdbcExecutorLogger.catching(e);
 			throw (new RuntimeException("Database Error!#Can't read row", e));
 		}
 	}

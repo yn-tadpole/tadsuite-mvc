@@ -89,16 +89,19 @@ public class MvcExecutor {
 				Method doActionMethod = mappingResult.clazz.getMethod(mappingResult.methodName);
 				doActionMethod.invoke(obj);
 				mvcRequest.setAttribute(Constants.LOGIC_FINISHED_TIME, System.currentTimeMillis());
+				success=true;
 				
 			} catch (ExecuteEndExcpetion e) {
 				Method setMvcViewMethod = mappingResult.clazz.getMethod("setMvcView", String.class, String.class);
 				setMvcViewMethod.invoke(obj, e.getCode(), e.getMessage());
+				success=true;
 				
 			} catch (InvocationTargetException result) {//反射方法中抛出的异常都为此类型
 				try {//如果尝试转换为EndExecutingExcpetion失败，则不管它。
 					ExecuteEndExcpetion cause=(ExecuteEndExcpetion)result.getCause();
 					Method setMvcViewMethod = mappingResult.clazz.getMethod("setMvcView", String.class, String.class);
 					setMvcViewMethod.invoke(obj, cause.getCode(), cause.getMessage());
+					success=true;
 				} catch (Exception e ) {
 					throw result.getCause();
 				}
@@ -112,7 +115,6 @@ public class MvcExecutor {
 					templatePath = mappingResult.defaultTemplate;
 				}
 				mvcRequest.setTemplatePath(templatePath);
-				success=true;
 			}
 			
 		} catch (ClassNotFoundException e) {

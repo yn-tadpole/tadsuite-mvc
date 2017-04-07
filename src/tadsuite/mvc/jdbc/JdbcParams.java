@@ -101,9 +101,10 @@ public class JdbcParams extends LinkedHashMap<String, Object> {
 	 */
 	public JdbcParams put(String key, String value) {
 		int x=key.lastIndexOf("]");
-		String type=x!=-1 ? key.substring(0, x).trim().toLowerCase()  : "[string";
-		int y=type.indexOf(",");
-		String pattern=y!=-1 ? type.substring(y+1) : "";
+		String prefix=x!=-1 ? key.substring(0, x).trim()  : "[string";
+		int y=prefix.indexOf(",");
+		String type=prefix.toLowerCase();
+		String pattern=y!=-1 ? prefix.substring(y+1) : "";
 		String paramName=x!=-1 ? key.substring(x+1)  : key;
 		
 		if (type.startsWith("[string")) {
@@ -301,7 +302,7 @@ public class JdbcParams extends LinkedHashMap<String, Object> {
 	}
 
 	public boolean hasValue(String paramName) {
-		return containsKey(paramName) && get(paramName)!=null;
+		return containsKey(paramName) && get(paramName)!=null && (!getTypeName(paramName).equalsIgnoreCase("String") || ((String)get(paramName)).length()>0);
 	}
 	
 	public boolean notNull(String paramName) {
@@ -317,7 +318,7 @@ public class JdbcParams extends LinkedHashMap<String, Object> {
 	}
 	
 	public String getString(String paramName) {
-		return (String)get(paramName);
+		return containsKey(paramName) && get(paramName)!=null ? (String)get(paramName) : "";
 	}
 
 	public long getLong(String paramName) {

@@ -1,6 +1,5 @@
 package tadsuite.mvc.core;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import tadsuite.mvc.Application;
@@ -283,6 +282,10 @@ public class MvcControllerBase extends MvcBase {
 
 	public String readText(String index) {
 		return request.readText(index);
+	}
+
+	public String readPlainText(String index) {
+		return request.readPlainText(index);
 	}
 	
 	public int readInt(String index, int defaultValue) {

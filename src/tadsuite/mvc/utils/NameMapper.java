@@ -35,15 +35,24 @@ public class NameMapper {
 		return convertName(columnName, mapPolicy);
 	}
 
-	public static String convertName(String name, MAP_POLICY mapPolicy) {
+	public static String convertName(String key, MAP_POLICY mapPolicy) {
+		int y=key.lastIndexOf(":");
+		String name, suffix;
+		if (y!=-1) {
+			name=key.substring(0, y);
+			suffix=key.substring(y);
+		} else {
+			name=key;
+			suffix="";
+		}
 		switch (mapPolicy) {
-		case NORMAL : return name;
-		case UPPER_CASE : return name.toUpperCase();
-		case LOWER_CASE : return name.toLowerCase();
-		case UNDERLINE_TO_PROPERTIES : return convertUnderscoreNameToPropertyName(name);
-		case UNDERLINE_TO_FORM_FIELD : return convertUnderscoreNameToFormFieldName(name);
-		case PROPERTIES_TO_UNDERLINE : return convertPropertyNameToUnderscoreName(name);
-		case PROPERTIES_TO_FORM_FIELD : return convertPropertyNameToFormFieldName(name);
+		case NORMAL : return key;
+		case UPPER_CASE : return name.toUpperCase()+suffix;
+		case LOWER_CASE : return name.toLowerCase()+suffix;
+		case UNDERLINE_TO_PROPERTIES : return convertUnderscoreNameToPropertyName(name)+suffix;
+		case UNDERLINE_TO_FORM_FIELD : return convertUnderscoreNameToFormFieldName(name)+suffix;
+		case PROPERTIES_TO_UNDERLINE : return convertPropertyNameToUnderscoreName(name)+suffix;
+		case PROPERTIES_TO_FORM_FIELD : return convertPropertyNameToFormFieldName(name)+suffix;
 		default : return name;
 		}
 	}

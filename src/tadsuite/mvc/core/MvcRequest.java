@@ -53,6 +53,7 @@ public interface MvcRequest {
 	public String readId(String index);
 	public String readLetter(String index);
 	public String readText(String index);
+	public String readPlainText(String index);
 	public int readInt(String index, int defaultValue);
 	public long readLong(String index, long defaultValue);
 	public float readFloat(String index, float defaultValue);
