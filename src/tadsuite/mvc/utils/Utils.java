@@ -171,9 +171,29 @@ public class Utils {
 		//System.out.println(">>>"+arrayString+">>>>"+sb.toString()+">>>");
 		return sb.toString().split(String.valueOf(seperator));
 	}
-	
 
+	public static String htmlDecode(String txt) {
+		return txt.replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"");
+	}
+	
 	public static String htmlEncode(String txt) {
+		StringBuilder out = new StringBuilder();
+	    for(int i=0, j=txt.length(); i<j; i++) {
+	    	char c = txt.charAt(i);
+	        if(c=='<') {
+	           out.append("&lt;");
+	        } else if (c=='>') {
+	        	 out.append("&gt;");
+	        } else if (c=='"') {
+	        	 out.append("&quot;");
+	        } else {
+	            out.append(c);
+	        }
+	    }
+	    return out.toString();
+	}
+	
+	public static String htmlEncodeSingleLine(String txt) {
 		StringBuilder out = new StringBuilder();
 	    for(int i=0, j=txt.length(); i<j; i++) {
 	    	char c = txt.charAt(i);
@@ -187,6 +207,8 @@ public class Utils {
 	        	 out.append(c);//这是错误的，out.append("&#x27");
 	        } else if (c=='/') {
 	        	 out.append(c);//这是错误的，out.append("&#x2F");
+	        } else if (c=='\n') {
+	        	 out.append(" ");
 	        } else {
 	            out.append(c);
 	        }
@@ -194,10 +216,6 @@ public class Utils {
 	    return out.toString();
 	}
 
-	public static String htmlDecode(String txt) {
-		return txt.replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"");
-	}
-	
 	public static String htmlEncodeWithBr(String txt) {
 		StringBuilder out = new StringBuilder();
 	    for(int i=0, j=txt.length(); i<j; i++) {
@@ -410,102 +428,27 @@ public class Utils {
 	
 
 	public static String json(Object value) {
-		StringBuilder buffer=new StringBuilder();
-		readJSONItem(value, buffer);
-		return buffer.toString();
+		return JSON.stringfy(value);
 	}
 
 	public static String json(List list) {
-		StringBuilder buffer=new StringBuilder();
-		readJSONItem(list, buffer);
-		return buffer.toString();
+		return JSON.stringfy(list);
 	}
 
 	public static String json(Map map) {
-		StringBuilder buffer=new StringBuilder();
-		readJSONItem(map, buffer);
-		return buffer.toString();
+		return JSON.stringfy(map);
 	}
 	
-	private static boolean readJSONItem(Object object, StringBuilder buffer) {
-		String type=object!=null ? object.getClass().getSimpleName() : "null";
-		if (type.endsWith("Map")) {
-			Map map=(Map) object;
-			int i=0;
-			buffer.append("{");
-			for (Object key : map.keySet()) {
-				buffer.append(i>0 ? ", " : "").append("\"").append(escapeJsonString(key)).append("\" : ");
-				readJSONItem(((Map) object).get(key), buffer);
-				i++;
-			}
-			buffer.append("}");
-			return true;
-		} else if (type.endsWith("List")) {
-			List list=(List) object;
-			buffer.append("[");
-			for (int i=0; i<((List)object).size(); i++) {
-				buffer.append(i>0 ? ", " : "");
-				readJSONItem(list.get(i), buffer);
-			}
-			buffer.append("]");
-			return true;
-		} else if (type.equals("Integer") || type.equals("Long") || type.equals("Float") || type.equals("Double") || type.equals("Decimal")) {
-			buffer.append(type.equals("null") ? "\"\"" : object);
-			return false;
-		} else if (type.equals("Boolean")) {
-			buffer.append((Boolean) object ? "true" : "false");
-			return false;
-		} else if (type.endsWith("Date") || type.endsWith("Timestamp")) {
-			buffer.append("\"").append(Utils.dateFormat(String.valueOf(object), "yyyy-MM-dd HH:mm", "yyyy-MM-dd HH:mm")).append("\"");
-			return false;
-		} else {
-			buffer.append("\"").append(type.equals("null") ? "" : escapeJsonString(object)).append("\"");
-			return false;
-		}
+	public static JSON parseJSON(String jsonString) {
+		return JSON.parse(jsonString);
 	}
 	
-	private static String escapeJsonString(Object object) {
-		return String.valueOf(object).replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\n");
+	public static String xml(Map map) {
+		return Xml.stringfy(map);
 	}
 	
-	public static String xml(Object object) {
-		StringBuilder xmlBuffer=new StringBuilder("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<xml>");
-		readXMLItem(object, xmlBuffer, "");
-		xmlBuffer.append("</xml>");
-		return xmlBuffer.toString();
-	}
-
-	private static boolean readXMLItem(Object object, StringBuilder xmlBuffer, String prefix) {
-		String type=object!=null ? object.getClass().getSimpleName() : "null";
-		if (type.equals("String")) {
-			xmlBuffer.append("<![CDATA[").append((String) object).append("]]>");
-			return false;
-		} else if (type.equals("Boolean")) {
-			xmlBuffer.append((Boolean) object ? "true" : "false");
-			return false;
-		} else if (type.endsWith("Map")) {
-			xmlBuffer.append("\n");
-			Map map=(Map) object;
-			for (Object key : map.keySet()) {
-				boolean isValidKey=Utils.regi("^[a-zA-Z]{1}[a-zA-Z0-9_\\-]{0,}$", (String)key);
-				xmlBuffer.append(prefix).append("<").append(isValidKey ? key : "key name=\""+key+"\"").append(">");
-				boolean bWrapRow=readXMLItem(((Map) object).get(key), xmlBuffer, prefix+"	");
-				xmlBuffer.append(bWrapRow ? prefix : "").append("</").append(isValidKey ? key : "key").append(">").append("\n");
-			}
-			return true;
-		} else if (type.endsWith("List")) {
-			xmlBuffer.append("\n");
-			List list=(List) object;
-			for (int i=0; i<((List)object).size(); i++) {
-				xmlBuffer.append(prefix).append("<item index=\"").append(i).append("\">");
-				boolean bWrapRow=readXMLItem(list.get(i), xmlBuffer, prefix+"	");
-				xmlBuffer.append(bWrapRow ? prefix : "").append("</item>").append("\n");
-			}
-			return true;
-		} else {
-			xmlBuffer.append(type.equals("null") ? "" : object.toString());
-			return false;
-		}
+	public static String xml(List list) {
+		return Xml.stringfy(list);
 	}
 
 	public	 static String md5(String str) {

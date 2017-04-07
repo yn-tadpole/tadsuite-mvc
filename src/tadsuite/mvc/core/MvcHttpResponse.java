@@ -67,6 +67,7 @@ public class MvcHttpResponse implements MvcResponse {
 		try {
 			httpResponse.sendRedirect(url);
 		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	

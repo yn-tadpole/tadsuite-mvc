@@ -156,6 +156,7 @@ public final class AuthSsoClient extends AuthClient {
 			} else {
 				state=null;
 				request.sessionDelete(stateSessionName);
+				request.cookieDelete(stateValStringCookieName, cookiePath, cookieDomain);
 				request.sessionReset();
 			}
 		}

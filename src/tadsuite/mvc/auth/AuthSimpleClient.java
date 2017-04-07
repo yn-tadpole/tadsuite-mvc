@@ -164,6 +164,7 @@ public final class AuthSimpleClient extends AuthClient {
 				state = null;
 				request.sessionDelete(stateSessionName);
 				request.cookieDelete(stateValStringCookieName, cookiePath, cookieDomain);
+				request.sessionReset();
 			}
 		}
 		
@@ -174,6 +175,13 @@ public final class AuthSimpleClient extends AuthClient {
 			if (!recoveryUserState(stateId)) {
 				request.cookieDelete(stateIdCookieName, cookiePath, cookieDomain);
 				request.cookieDelete(stateIdValStringCookieName, cookiePath, cookieDomain);
+			}
+		}
+		
+
+		if (!logined && controller.unsafeAuthCheck && controller.unsafeAuthStateId!=null && controller.unsafeAuthStateIdValKey!=null) {
+			if (controller.unsafeAuthStateIdValKey.equals(buildUnsafeValString(controller.request, controller.unsafeAuthStateId))) {
+				recoveryUserState(controller.unsafeAuthStateId);
 			}
 		}
 	}

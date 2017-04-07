@@ -1,5 +1,7 @@
 package tadsuite.mvc.core;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -190,6 +192,29 @@ public class MvcHttpRequest implements MvcRequest {
         }
         return params;
 	}
+	
+	@Override
+	public String readRequestBody() {
+		BufferedReader reader=null;
+		StringBuffer body=new StringBuffer();
+		try {
+			reader=httpRequest.getReader();
+			String input = null;
+	        while((input = reader.readLine()) != null) {
+	        	body.append(input).append("\n");
+	        }
+		} catch (IOException e) {
+		} finally {
+			if (reader!=null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return body.toString();
+	}
 
 	private String checkXss(String name, String value) {
 		if (name.endsWith(":original") || name.endsWith(":raw")) {//参数名以“.original”或“.raw”结尾
@@ -206,11 +231,8 @@ public class MvcHttpRequest implements MvcRequest {
 			if (name.endsWith(":html")) {
 				return Utils.sanitizeHtml(value);
 				
-			} else if (name.endsWith(":code")) {
+			} else if (name.endsWith(":code") || name.endsWith(":text")) {
 				return Utils.htmlEncodeWithBr(value);
-
-			} else if (name.endsWith(":text")) {
-				return Utils.htmlEncode(value);
 
 			} else if (name.endsWith(":id")) {
 				return Utils.isId(value) ? value : "";
@@ -225,7 +247,7 @@ public class MvcHttpRequest implements MvcRequest {
 				return Utils.isNumber(value) ? value : "";
 
 			} else if (name.endsWith(":letter")) {
-				return Utils.regi("^[a-zA-Z0-9\\-_]$", value) ? value : "";
+				return Utils.regi("^[a-zA-Z0-9\\-_]{1,}$", value) ? value : "";
 				
 			} else if (name.endsWith(":float")) {
 				return Utils.isFloat(value) ? value : "";
@@ -248,7 +270,7 @@ public class MvcHttpRequest implements MvcRequest {
 		if (value.length()>Application.getParameterValueMaxLength()) {
 			value=value.substring(0, Application.getParameterValueMaxLength());
 		}
-		return Utils.htmlEncode(Utils.sanitizeHtml(value));
+		return Utils.htmlEncodeSingleLine(Utils.sanitizeHtml(value));
 	}
 	
 	public String readInput(String index) {
@@ -297,6 +319,8 @@ public class MvcHttpRequest implements MvcRequest {
 			index=index+":datetime";
 			break;
 		case RAW:
+			index=index+":raw";
+			break;
 		default:
 			break;
 		}
@@ -309,12 +333,32 @@ public class MvcHttpRequest implements MvcRequest {
 	}
 	
 	public String readId(String index) {
-		String value=readInput(index);
-		return Utils.isId(value) ? value : "";
+		return readInput(index, FORMAT.ID);
 	}
+
 	public String readLetter(String index) {
-		String value=readInput(index);
-		return Utils.regi("^[a-zA-Z0-9\\-_]{1,100}$", value) ? value : "";
+		return readInput(index, FORMAT.LETTER);
+	}
+
+	public String readText(String index) {
+		return readInput(index, FORMAT.TEXT);
+	}
+
+	public String readPlainText(String index) {
+		String value=readInput(index, FORMAT.HTML);
+		StringBuffer sb=new StringBuffer();
+		boolean pass=false;
+		for (int i=0; i<value.length(); i++) {
+			char c=value.charAt(i);
+			if (c=='<') {
+				pass=true;
+			} else if (c=='>') {
+				pass=false;
+			} else if (!pass)  {
+				sb.append(c);
+			}
+		}
+		return sb.toString();
 	}
 	
 	public String readInput(String index, int maxLength, String defaultValue) {
@@ -323,23 +367,23 @@ public class MvcHttpRequest implements MvcRequest {
 	}
 	
 	public int readInt(String index, int defaultValue) {
-		String value=readInput(index);
-		return Utils.parseInt(value, defaultValue);
+		String value=readInput(index).trim();
+		return Utils.parseInt(value!=null ? value.replaceAll(",", "") : "", defaultValue);
 	}
 
 	public long readLong(String index, long defaultValue) {
-		String value=readInput(index);
-		return Utils.parseLong(value, defaultValue);
+		String value=readInput(index).trim();
+		return Utils.parseLong(value!=null ? value.replaceAll(",", "") : "", defaultValue);
 	}
 
 	public float readFloat(String index, float defaultValue) {
-		String value=readInput(index);
-		return Utils.parseFloat(value, defaultValue);
+		String value=readInput(index).trim();
+		return Utils.parseFloat(value!=null ? value.replaceAll(",", "") : "", defaultValue);
 	}
 
 	public double readDouble(String index, double defaultValue) {
-		String value=readInput(index);
-		return Utils.parseDouble(value, defaultValue);
+		String value=readInput(index).trim();
+		return Utils.parseDouble(value!=null ? value.replaceAll(",", "") : "", defaultValue);
 	}
 		
 	public String[] readInputArray(String index) {
@@ -592,5 +636,14 @@ public class MvcHttpRequest implements MvcRequest {
 	public String readLocaleText(String title) {
 		return Application.readLocaleText(getCurrentLocale(), title);
 	}
+	
+	public void setCharacterEncoding(String encoding) {
+		try {
+			httpRequest.setCharacterEncoding(encoding);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 
 }

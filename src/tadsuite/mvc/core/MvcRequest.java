@@ -36,6 +36,8 @@ public interface MvcRequest {
 	public String getRemoteAddr();	
 	public String getLocalAddr();
 	
+	public String readRequestBody();
+	
 	public Object getAttribute(String name);
 	public void setAttribute(String name, Object obj);
 	
@@ -50,6 +52,8 @@ public interface MvcRequest {
 	public String readInput(String index, FORMAT format);
 	public String readId(String index);
 	public String readLetter(String index);
+	public String readText(String index);
+	public String readPlainText(String index);
 	public int readInt(String index, int defaultValue);
 	public long readLong(String index, long defaultValue);
 	public float readFloat(String index, float defaultValue);
@@ -80,6 +84,8 @@ public interface MvcRequest {
 	public void checkCsrfToken();
 	public void generateTokenMark(boolean override);
 	public void generateTokenMark(boolean override, String defaultValue);
+	
+	public void setCharacterEncoding(String encoding);
 	
 	public String getCurrentLocale();
 	public String readLocaleText(String title);
