@@ -153,6 +153,9 @@ public class JSON {
 		}
 	}
 	
+	public String toString() {
+		return stringfy();
+	}
 	
 	public String stringfy() {
 		return stringfy(json);
